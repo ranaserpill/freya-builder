@@ -12,3 +12,8 @@ kit/traces/
 kit/out/
 .freya-agents.json
 kit/.freya-agents.json
+out/
+tests/out/
+# dev runs (submission files are named submission-*)
+submission/dev-*
+traces/dev-*

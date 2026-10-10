@@ -1,6 +1,7 @@
 # Freya "Build the Builder" — agent rules
 
-Read by both Claude Code (via CLAUDE.md) and Codex (AGENTS.md). Keep this file the single source of truth.
+Read by both Claude Code (via CLAUDE.md) and Codex (AGENTS.md). Rules live here; status, results and the task
+split live in PLAN.md. Read both before you start.
 
 ## What we are building
 A **builder**: `uv run builder/build.py <brief.md> <openapi.json>` reads a bank brief and creates/updates a
