@@ -32,6 +32,11 @@ Only the phone agent is scored. The builder must run alone: one command, no manu
 ## Code layout
 - Python 3.12 via `uv` (`uv add <pkg>` for deps). All builder model calls go through `builder/llm.py`;
   all trace output through `builder/trace.py` — don't print around them.
+- `builder/llm.py` calls Claude through the Claude Agent SDK with the machine's Claude Code login (we have no
+  API key). The model gets no tools and no repo context. Use `ask_json(..., schema=...)` for structured output
+  and the `*_async` variants to run independent calls in parallel.
+- Create/update workflows only with `builder/deploy.py` (`deploy(name, workflow)`). It finds the workflow by
+  name in the shared workspace. Do not use `freya.save_workflow`: its local state file differs per machine.
 
 ## Trace (required for submission)
 Every builder run logs: start/end time, every model call (model + one-line purpose), what was created on
@@ -39,8 +44,12 @@ Freya (workflow id, agent id, #steps, #tools), and every self-test with its resu
 we `tee` it to `traces/<brief>.log`.
 
 ## Testing
-- `python3 tools/run_cases.py <agent_id> --brief A|B [--reps 3]`
-- **Only one simulation at a time per workspace** — announce in chat before running; don't run in parallel.
+- `uv run --env-file .env kit/tools/run_cases.py <agent_id> --brief A|B [--reps 3]` (the kit scripts do not
+  read `.env` themselves)
+- **Only one simulation at a time per workspace, and we share one workspace.** A second run started meanwhile
+  waits for the first (it prints "another simulation is running"), so a run can take twice as long. Announce in
+  chat before running. For a quick look, one chat turn (`POST /api/v2/chat/message`, see kit/docs/api.md) does
+  not queue.
 - Trust a fix only after `--reps 3`.
 
 ## Workflow for us (two people)

@@ -5,3 +5,10 @@ __pycache__/
 *.pyc
 .DS_Store
 .venv/
+# local state written by kit scripts
+kit/.personas.json
+kit/results/
+kit/traces/
+kit/out/
+.freya-agents.json
+kit/.freya-agents.json
