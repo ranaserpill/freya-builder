@@ -25,7 +25,18 @@ same PR. Keep it short.
 - **Freya credit (topped up, 10 Oct ~15:30 UTC): 196.5 credits left ≈ $98** (1 credit = $0.50). Simulations are
   allowed again. Costs are in **credits**: ~0.10 credit (≈ $0.05) per simulated call, so a 13-case `--reps 3`
   run ≈ 4 credits. 5.98 credits used before the top-up (2.6 of them on the sandbox outage).
-  Still run only the cases a change affects first (`run_cases.py --only PUB-12`); it is faster too.
+  **Credit rules (simulations are allowed, wasting them is not):**
+  1. Offline first: `test_phone_code`, `test_tools`, `test_generate` (and `test_spec` for spec changes) must pass
+     before any Freya call. Many bugs need no simulation at all.
+  2. Run only the cases the change affects (`--only PUB-12,PUB-13`). A full 13-case run only when a change touches
+     every call (prompts for all steps, hooks used everywhere).
+  3. `--reps 3` only for the pre-freeze check (Sun before 15:00 UTC), not after every change.
+  4. Never rerun an unchanged agent to "see if it passes this time" more than once; read the transcript instead
+     (`freya.get_call(call_id)`, free).
+  5. Before a run of more than 5 calls, one chat turn first (`POST /api/v2/chat/message`) to make sure the
+     platform works (the sandbox outage cost 2.6 credits).
+  6. Announce every simulation in our chat (shared workspace, one at a time) and say how many calls it is.
+  7. Coding agents: ask the human before starting any simulation; state the cases and the estimated credits.
   Balance: `freya.api("GET", f"/api/v2/workspaces/{freya.workspace_id()}/credits")` → `creditsLeft`.
   Usage: `/api/v2/analytics/credits` (in credits, not dollars).
 - No Anthropic API key. The builder uses the Claude Code login (subscription limits apply).
