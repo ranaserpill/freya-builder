@@ -22,9 +22,12 @@ same PR. Keep it short.
 
 - Freya staging workspace: "Şevval Değirmenci's Workspace" on https://staging-app.freyavoice.ai. **One key per
   team** — both of us use the same `fak_` key and the same `FREYA_BANK_TEAM_KEY` (share privately, never commit).
-- **Freya credit is ~$10** (organisers said they will raise it). 2.84 $ used by 14:40 UTC on 10 Oct; a 13-case
-  run costs roughly 0.5–1 $. Check: `freya.api("GET", "/api/v2/analytics/credits", workspaceId=freya.workspace_id())`.
-  → Run only the cases a change affects (`run_cases.py --only PUB-12`). Full `--reps 3` runs only before freezing.
+- **Freya credit: $5.98 of $10 used by 15:00 UTC on 10 Oct** (59 simulated calls ≈ **$0.10 per call**; ~$2.6 of it
+  on 26 calls that hit the sandbox outage). Top-up and refund requested from the organisers.
+  **Until the top-up: no simulations, no chat turns, no Freya calls at all.** Work offline (tests below).
+  Afterwards: run only the cases a change affects (`run_cases.py --only PUB-12`); full `--reps 3` only before
+  freezing. Check: `freya.api("GET", "/api/v2/analytics/credits", workspaceId=freya.workspace_id())` (its
+  category breakdown sums to less than the total; asked the organisers why).
 - No Anthropic API key. The builder uses the Claude Code login (subscription limits apply).
 - Dashboard (Optimize → Solutions, Simulations, AI Studio) = manual tools. Rules forbid hand-editing the agent, so
   we only use the dashboard to read transcripts.
@@ -51,7 +54,14 @@ build.py  brief(s) + openapi.json
 
 Run: `uv run builder/build.py kit/briefs/brief-a.md kit/briefs/brief-b.md kit/tools/openapi.json --test B`
 (workflow name `$DEV_WORKFLOW_NAME-<brief>`, so each of us keeps our own dev workflow).
-Engine test (no Freya, no cost): `uv run python -m builder.test_phone_code`.
+Offline tests (no Freya, no credit; run all before every PR):
+- `uv run python -m builder.test_phone_code` — date engine on all practice cases
+- `uv run python -m builder.test_tools` — every hook with fake results
+- `uv run python -m builder.test_generate` — builds a workflow from every spec in `out/` and `tests/out/` and checks
+  routes, tool enums vs the tool API, the code step (compiled and run on synthetic accounts), prompt variables
+- `uv run python -m builder.test_spec [--cached]` — spec extraction on `tests/briefs/` (Claude calls, no Freya).
+  10 Oct: **raw-a PASS** (memo's 3 changes caught), **rules-c PASS** (3 bands, postcode/birth_year, renamed
+  outcomes and queues); both also pass `test_generate`.
 
 ## Results so far (practice cases)
 

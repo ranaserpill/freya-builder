@@ -214,7 +214,8 @@ INSTRUCTIONS
         "nodes": nodes,
         "global_nodes": {},
         "tools": [close],
-        "test_variables": {"customer_id": "c_test", "first_name": "Daniel", "last_name": "Reyes", "title": "Mr", "now": "2026-10-14T11:00"},
+        # No customer_id here: in a chat call a test value was baked into tool bodies instead of the real one.
+        "test_variables": {"first_name": "Daniel", "last_name": "Reyes", "title": "Mr", "now": "2026-10-14T11:00"},
     }
 
 

@@ -127,6 +127,10 @@ def _hook(body: str) -> str:
 
 
 VERIFY_HOOK = _hook("""    _left = _d.get('wrong_answers_left')
+    if _left is None:
+        for _k in _d:
+            if 'left' in str(_k).lower() or 'remaining' in str(_k).lower():
+                _left = _d[_k]
     if str(_d.get('all_verified')).lower() == 'true':
         _v['fx_identity'] = 'verified'
         _msg = 'All security questions are answered correctly: the identity is VERIFIED. Ask no more security questions.'
