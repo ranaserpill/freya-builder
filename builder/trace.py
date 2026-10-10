@@ -7,8 +7,8 @@ import re
 import sys
 from datetime import datetime, timezone
 
-_SECRET_ENV = ("FREYA_API_KEY", "TEAM_KEY", "ANTHROPIC_API_KEY", "OPENAI_API_KEY")
-_KEY_PATTERN = re.compile(r"(sk-[A-Za-z0-9_\-]{8,}|Bearer\s+\S+)")
+_SECRET_ENV = ("FREYA_API_KEY", "FREYA_BANK_TEAM_KEY", "ANTHROPIC_API_KEY", "OPENAI_API_KEY")
+_KEY_PATTERN = re.compile(r"(sk-[A-Za-z0-9_\-]{8,}|fak_[A-Za-z0-9_\-]{8,}|Bearer\s+\S+)")
 
 
 def _now() -> str:
