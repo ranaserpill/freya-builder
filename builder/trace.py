@@ -35,9 +35,11 @@ def end(ok: bool) -> None:
     log("END", "ok" if ok else "failed")
 
 
-def model_call(model: str, purpose: str, usage=None) -> None:
-    tokens = f" in={usage.input_tokens} out={usage.output_tokens}" if usage else ""
-    log("MODEL", f"{model} | {purpose}{tokens}")
+def model_call(model: str, purpose: str, usage=None, cost_usd=None, duration_ms=None) -> None:
+    get = (lambda k: usage.get(k)) if isinstance(usage, dict) else (lambda k: getattr(usage, k, None))
+    tokens = f" in={get('input_tokens')} out={get('output_tokens')}" if usage else ""
+    extra = (f" ${cost_usd:.3f}" if cost_usd else "") + (f" {duration_ms / 1000:.0f}s" if duration_ms else "")
+    log("MODEL", f"{model} | {purpose}{tokens}{extra}")
 
 
 def created(workflow_id: str, agent_id: str, steps: int, tools: int) -> None:

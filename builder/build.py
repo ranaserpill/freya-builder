@@ -26,7 +26,8 @@ def load_env(path: Path) -> None:
         line = line.strip()
         if line and not line.startswith("#") and "=" in line:
             key, value = line.split("=", 1)
-            os.environ.setdefault(key.strip(), value.strip())
+            if value.strip():  # an empty ANTHROPIC_API_KEY= would override the Claude Code login
+                os.environ.setdefault(key.strip(), value.strip())
 
 
 def main(argv: list[str]) -> int:
