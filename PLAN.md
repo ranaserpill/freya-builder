@@ -1,6 +1,7 @@
 # PLAN — single source of truth for the team (Şevval, Rana) and our coding agents
 
-**Coding agents: read this file and AGENTS.md before you plan, research or write code.** Most research is done;
+**Coding agents: read this file and AGENTS.md before you plan, research or write code** (history and decisions:
+`docs/HANDOFF-*.md`). Most research is done;
 the findings are below. Do not redo it. If you learn something that contradicts this file, fix this file in the
 same PR. Keep it short.
 
