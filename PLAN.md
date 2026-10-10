@@ -22,12 +22,12 @@ same PR. Keep it short.
 
 - Freya staging workspace: "Şevval Değirmenci's Workspace" on https://staging-app.freyavoice.ai. **One key per
   team** — both of us use the same `fak_` key and the same `FREYA_BANK_TEAM_KEY` (share privately, never commit).
-- **Freya credit: $5.98 of $10 used by 15:00 UTC on 10 Oct** (59 simulated calls ≈ **$0.10 per call**; ~$2.6 of it
-  on 26 calls that hit the sandbox outage). Top-up and refund requested from the organisers.
-  **Until the top-up: no simulations, no chat turns, no Freya calls at all.** Work offline (tests below).
-  Afterwards: run only the cases a change affects (`run_cases.py --only PUB-12`); full `--reps 3` only before
-  freezing. Check: `freya.api("GET", "/api/v2/analytics/credits", workspaceId=freya.workspace_id())` (its
-  category breakdown sums to less than the total; asked the organisers why).
+- **Freya credit (topped up, 10 Oct ~15:30 UTC): 196.5 credits left ≈ $98** (1 credit = $0.50). Simulations are
+  allowed again. Costs are in **credits**: ~0.10 credit (≈ $0.05) per simulated call, so a 13-case `--reps 3`
+  run ≈ 4 credits. 5.98 credits used before the top-up (2.6 of them on the sandbox outage).
+  Still run only the cases a change affects first (`run_cases.py --only PUB-12`); it is faster too.
+  Balance: `freya.api("GET", f"/api/v2/workspaces/{freya.workspace_id()}/credits")` → `creditsLeft`.
+  Usage: `/api/v2/analytics/credits` (in credits, not dollars).
 - No Anthropic API key. The builder uses the Claude Code login (subscription limits apply).
 - Dashboard (Optimize → Solutions, Simulations, AI Studio) = manual tools. Rules forbid hand-editing the agent, so
   we only use the dashboard to read transcripts.
