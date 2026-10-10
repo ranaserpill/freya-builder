@@ -198,9 +198,10 @@ def callback_text(now, spec):
         days.append(x)
     parts = []
     for d in days:
-        start = earliest
+        start = ("from " + earliest) if earliest else "any time"
         if d == today:
-            start = "after " + now.strftime("%H:%M") + (" and from " + earliest if earliest else "")
+            current = now.strftime("%H:%M")
+            start = ("from " + earliest) if earliest and earliest > current else ("later than now (" + current + ")")
         parts.append(day_text(d) + " (" + d.isoformat() + "), " + start + (" until " + latest if latest else ""))
     return "Allowed callback days and times: " + ("; ".join(parts) if parts else "none") + "."
 
