@@ -240,7 +240,8 @@ def compute(v, spec):
                 + ". " + str(x["days_late"]) + " days late, " + str(x["band"]) + " band. Floor (lowest amount allowed): "
                 + money(x["floor"]) + ". Latest allowed promise date (deadline): "
                 + (day_text(dl) + " (" + dl.isoformat() + ")" if dl else "unknown") + ". Persuasion attempts for this product: "
-                + str(x["attempts"]) + ".")
+                + str(x["attempts"]) + " (count them for this product alone; once " + str(x["attempts"])
+                + " offer(s) for this product were refused, make no further offer for it).")
             v["fx_p" + str(n + 1) + "_deadline"] = dl.isoformat() if dl else ""
             v["fx_p" + str(n + 1) + "_floor"] = money(x["floor"])
         v["fx_product_count"] = str(len(infos))

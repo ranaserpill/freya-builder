@@ -1,0 +1,25 @@
+[2026-10-10T14:30:53+00:00] START    brief=kit/briefs/brief-a.md kit/briefs/brief-b.md tool_api=kit/tools/openapi.json python=3.12.15
+[2026-10-10T14:30:53+00:00] STEP     workflow name: dev-sevval-brief-b
+[2026-10-10T14:30:55+00:00] STEP     read 2 brief file(s) (12567 chars) and tool API (7 tools)
+[2026-10-10T14:31:16+00:00] MODEL    claude-opus-5-5 | spec: extract rule values (calendar, bands, floors, outcomes) in=2 out=2481 $0.122 19s
+[2026-10-10T14:32:19+00:00] MODEL    claude-opus-5-5 | spec: rewrite every brief rule as per-stage agent instructions in=2 out=9810 $0.269 83s
+[2026-10-10T14:32:19+00:00] STEP     spec: 2 identity questions, 2 bands, 5 holidays, 16 outcomes, 85 instructions
+[2026-10-10T14:32:19+00:00] STEP     generated workflow: 7 steps, 15 tool slots
+[2026-10-10T14:32:20+00:00] STEP     dry-run validation passed
+[2026-10-10T14:32:21+00:00] FREYA    workflow=2eae6573-5543-44c7-a619-35dfa3dc1534 agent=7038437c-b0f2-4ee9-9002-56d8a7d7cdad steps=7 tools=15
+[2026-10-10T14:32:21+00:00] STEP     created and published version 1
+[2026-10-10T14:32:23+00:00] TEST     chat smoke test (agent speaks): 1/1 'Hello, I am a digital assistant calling from Freya Bank, and this call is recorded. Am I speaking with Mr Reyes?'
+[2026-10-10T14:32:23+00:00] STEP     practice cases: C:\Users\62656076952\freya-builder\kit\tools\run_cases.py 7038437c-b0f2-4ee9-9002-56d8a7d7cdad --brief B --reps 1 --out C:\Users\62656076952\freya-builder\out\dev-sevval-brief-b.cases.json
+[2026-10-10T14:34:34+00:00] CASES    PASS PUB-11 medium Multi-product  | verify > verify > get_account > promise > promise > promise > close_call
+[2026-10-10T14:34:34+00:00] CASES    FAIL PUB-12 hard   Multi-product  | verify > verify > verify > get_account > add_note > add_note > promise > close_call
+[2026-10-10T14:34:34+00:00] CASES           - conversation: The assistant failed to meet the success criteria regarding the car loan. Specifically, while it correctly made two attempts to collect on the personal loan (Message 14 and Message 16), it also made two attempts on the car loan (Message 18 and Me
+[2026-10-10T14:34:34+00:00] CASES    PASS PUB-13 hard   Multi-product  | verify > verify > get_account > promise > promise > close_call
+[2026-10-10T14:34:34+00:00] CASES    
+[2026-10-10T14:34:34+00:00] CASES    slowest agent turn per call: median 26 s, worst 26 s. Failed calls where the customer hung up: 0.
+[2026-10-10T14:34:34+00:00] CASES    WARNING: the phone agent was slow in this run. If the same agent is fast in another run, the model was busy and this score is too low.
+[2026-10-10T14:34:34+00:00] CASES    
+[2026-10-10T14:34:34+00:00] CASES    2 / 3 passed (bank records and conversation checks). Last simulation 3ce1e16b-5ad5-4ecb-a4f6-4ae9e8803872, status completed, 126 s.
+[2026-10-10T14:34:34+00:00] TEST     practice cases brief B x1: 2/3
+[2026-10-10T14:34:35+00:00] STEP     exported to submission\dev-sevval-brief-b.workflow.json
+[2026-10-10T14:34:35+00:00] STEP     build time 222 s
+[2026-10-10T14:34:35+00:00] END      ok
