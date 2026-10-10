@@ -13,3 +13,4 @@ kit/out/
 .freya-agents.json
 kit/.freya-agents.json
 out/
+tests/out/
