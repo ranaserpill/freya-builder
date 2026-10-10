@@ -3,7 +3,7 @@
 Read by both Claude Code (via CLAUDE.md) and Codex (AGENTS.md). Keep this file the single source of truth.
 
 ## What we are building
-A **builder**: `python3 builder/build.py <brief.md> <openapi.json>` reads a bank brief and creates/updates a
+A **builder**: `uv run builder/build.py <brief.md> <openapi.json>` reads a bank brief and creates/updates a
 **phone agent** (a Freya workflow: steps, prompts, tools, conditional routes, code nodes) via `freya.py`.
 Only the phone agent is scored. The builder must run alone: one command, no manual edits afterwards.
 
@@ -28,6 +28,10 @@ Only the phone agent is scored. The builder must run alone: one command, no manu
   call succeeds; retry failed tool calls once without duplicating records.
 - The builder should: parse brief → structured spec (JSON) → generate workflow → run practice cases →
   fix → re-deploy, within the time budget.
+
+## Code layout
+- Python 3.12 via `uv` (`uv add <pkg>` for deps). All builder model calls go through `builder/llm.py`;
+  all trace output through `builder/trace.py` — don't print around them.
 
 ## Trace (required for submission)
 Every builder run logs: start/end time, every model call (model + one-line purpose), what was created on
