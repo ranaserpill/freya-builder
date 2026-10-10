@@ -90,21 +90,32 @@ def end_call_tool() -> dict:
 
 # ---- post-hooks: turn a bare result into a sentence the phone agent can act on --------------------------------
 
+# `vars` is not documented for post-hooks: without it the name falls back to Python's builtin vars(), so test
+# for a mapping, not for the name. A body that arrives as a JSON string is parsed, not dropped.
+_VARS = """    try:
+        _v = vars
+    except Exception:
+        _v = None
+    if not (hasattr(_v, 'get') and hasattr(_v, '__setitem__')):
+        _v = dict()
+"""
 _HOOK_HEAD = """try:
     _d = result.get('data') if isinstance(result, dict) else None
     if isinstance(result, dict):
         result.pop('header', None)
+    if isinstance(_d, str):
+        try:
+            import json as _json
+            _d = _json.loads(_d)
+        except Exception:
+            _d = dict(text=_d)
     if not isinstance(_d, dict):
         _d = dict()
-        if isinstance(result, dict):
-            result['data'] = _d
+    if isinstance(result, dict):
+        result['data'] = _d
     _ok = str(_d.get('ok')).lower() == 'true'
     _err = str(_d.get('error') or result.get('message') or 'unknown error') if isinstance(result, dict) else 'unknown error'
-    try:
-        _v = vars
-    except Exception:
-        _v = dict()
-"""
+""" + _VARS
 _HOOK_TAIL = """    _d['what_to_do_next'] = _msg + ' Now say something to the customer or call the next tool. Never stay silent.'
 except Exception:
     pass
@@ -117,6 +128,7 @@ def _hook(body: str) -> str:
 
 VERIFY_HOOK = _hook("""    _left = _d.get('wrong_answers_left')
     if str(_d.get('all_verified')).lower() == 'true':
+        _v['fx_identity'] = 'verified'
         _msg = 'All security questions are answered correctly: the identity is VERIFIED. Ask no more security questions.'
     elif not _ok and _d.get('verified') is None:
         _msg = 'The service could not use this answer (' + _err + '). It does NOT count as a wrong answer. Ask for the same answer again in the expected form.'
@@ -125,6 +137,7 @@ VERIFY_HOOK = _hook("""    _left = _d.get('wrong_answers_left')
     elif str(_d.get('verified')).lower() == 'true':
         _msg = 'This answer is CORRECT. Ask the next security question now.'
     elif str(_left) == '0':
+        _v['fx_identity'] = 'failed'
         _msg = 'This answer is WRONG and no wrong answers are left: the identity check has FAILED. Do not ask again and do not state any debt. Follow your instructions for a failed identity check, then end the call.'
     else:
         _msg = 'This answer is WRONG. Wrong answers left: ' + str(_left) + '. Follow your instructions for a wrong answer.'
@@ -171,12 +184,11 @@ def close_hook(deterministic: dict, outcomes: list) -> str:
     otherwise the model's choice stays. Reasons the outcome table does not use are dropped."""
     no_reason = sorted({o["outcome"] for o in outcomes} - {o["outcome"] for o in outcomes if o.get("reason")})
     data = json.dumps({"d": deterministic, "no_reason": no_reason})
-    return """try:
+    return ("""try:
     import json as _json
     _D = _json.loads(DATA)
     _b = config.get('body')
-    _v = vars
-    if isinstance(_b, dict):
+""" + _VARS + """    if isinstance(_b, dict):
         _pick = None
         _q = _v.get('fx_transfer_queue') or _v.get('transfer_to_agent_args.queue')
         if _v.get('fx_transfer_ok') == 'yes' and _q:
@@ -185,7 +197,7 @@ def close_hook(deterministic: dict, outcomes: list) -> str:
                     _pick = _t
         elif int(_v.get('fx_promises_ok') or 0) > 0:
             _pick = _D['d'].get('promise_recorded')
-        elif str(_v.get('verify_identity_response.data.wrong_answers_left')) == '0' and str(_v.get('verify_identity_response.data.all_verified')).lower() != 'true':
+        elif _v.get('fx_identity') == 'failed' or (str(_v.get('verify_identity_response.data.wrong_answers_left')) == '0' and str(_v.get('verify_identity_response.data.all_verified')).lower() != 'true'):
             _pick = _D['d'].get('identity_failed')
         elif _v.get('fx_callback_ok') == 'yes':
             _pick = _D['d'].get('callback_scheduled')
@@ -197,7 +209,7 @@ def close_hook(deterministic: dict, outcomes: list) -> str:
             _b.pop('reason', None)
 except Exception:
     pass
-""".replace("DATA", repr(data))
+""").replace("DATA", repr(data))
 
 
 def outcome_table(outcomes: list) -> str:

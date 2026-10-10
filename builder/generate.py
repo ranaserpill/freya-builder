@@ -182,7 +182,9 @@ INSTRUCTIONS
         "identity": conversation(
             "identity", identity_task,
             [tool("verify_identity")] + mentioned("\n".join(ins["identity"] + ins["global"]), ["transfer_to_agent"]),
-            transitions=[{"target_node": "load_account", "description": "identity verified", "condition": is_true("verify_identity_response.data.all_verified")}],
+            transitions=[{"target_node": "load_account", "description": "identity verified", "condition": {"logic": "or", "conditions":
+                          is_true("verify_identity_response.data.all_verified")["conditions"]
+                          + [{"variable": "fx_identity", "operator": "equals", "operand": "verified"}]}}],
         ),
         "load_account": {
             "name": "load_account",

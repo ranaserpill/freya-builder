@@ -60,19 +60,38 @@ Engine test (no Freya, no cost): `uv run python -m builder.test_phone_code`.
 | Kit example (base-agent) | 0 | – |
 | Builder v1, spec from A | 9 (PUB-10: judge read "this call is recorded" in the opening as "recorded" too early; ledger was right) | – |
 | Builder v1, spec from A+B, full pipeline, build 222 s | – | 2 (PUB-12: 2 persuasion attempts on an early-band product; ledger was right) |
-| v1 + per-product attempt wording | running (13 cases × 2) | |
+| v1 + per-product attempt wording, 13 cases × 2 | **invalid run**: Freya's Python sandbox was down (see below) | |
 
 The agent model (`experimental-5`) is sometimes slow (median turn 10–26 s); `run_cases.py` warns when it is.
+Test A cases with an agent built from Brief A only: an A+B agent applies Brief B's add_note rule to A cases.
 
-## Known issues / next steps (owner)
+**Platform outage, 10 Oct from ~14:38 UTC:** every code step and every tool with a pre/post hook failed with
+`Failed to reach snekbox: Cannot connect to host snekbox-svc.staging.local:8060`. A failing hook fails the whole
+tool call, so `verify_identity` and `close_call` failed too. Reported to the organisers. **Do not run simulations
+while it lasts** (a one-turn chat probe is enough to check). Open question: make the critical tools work without
+hooks so an outage during the final does not take every call down.
 
-1. Robustness to the raw-material hidden brief — **Rana**: write test briefs in `tests/briefs/` (Brief A as mail
-   + policy + amending memo + code list; a brief with other holidays, 3 bands, another identity question,
-   other outcome/queue names, with a matching openapi), run `spec.extract` only (no Freya), report misses.
-2. Local tests of the hooks in `builder/tools.py` (`builder/test_tools.py`) — **Rana**.
-3. Fix what 1–2 find in spec.py / tools.py / generate.py, persuasion counting, speech styles — **Şevval**.
-4. Before freezing: `--reps 3` on all 13 cases, plus a couple of `--style` runs. Then rehearse the final run with
-   `--name submission-<brief>` and check the trace has everything the organisers ask for.
+## Timeline (UTC; TR = UTC+3)
+
+- Sat: builder working end to end ✅ → robustness (raw material, other rules, speech styles).
+- **Sun 15:00 code freeze on `main`**; after that only crash fixes.
+- Sun 17:00 hidden briefs: `uv run builder/build.py <brief> <openapi> --name submission-<brief> 2>&1 | tee traces/hidden-N.log`,
+  check the trace, commit `submission/` + `traces/`, send the submission JSON (target 19:00, deadline 20:00).
+
+## Owners and next steps
+
+| Rana | Şevval |
+|---|---|
+| `spec.py` from now on (extraction, schema, checks) and its tests (`test_spec.py`, `tests/briefs/`) | `generate.py`, `tools.py`, `phone_code.py`, `deploy.py`, `build.py` |
+| Run `test_spec.py` on `raw-a` and `rules-c`; fix misses in spec.py | Outage resilience; persuasion counting; speech styles |
+| Idea: a "normalise" step (raw material → one consolidated brief) if `raw-a` shows misses | Before freeze: `--reps 3` on all cases + a few `--style` runs, final-run rehearsal |
+
+Ideas not started (decide by cost): self-test personas generated from the spec (the mock bank creates practice
+sessions only for the 13 public case ids, so hidden-brief self-tests need another way), and an LLM repair loop on
+failed transcripts (fits the 30 min budget, but costs Freya credit per run).
+
+Hook tests: `uv run python -m builder.test_tools` (Rana's three findings fixed: no engine `vars`, string body,
+identity-failed flag `fx_identity`).
 
 ## Gotchas already solved (do not debug these again)
 
@@ -82,4 +101,5 @@ The agent model (`experimental-5`) is sometimes slow (median turn 10–26 s); `r
 - Kit scripts do not read `.env`: run them with `uv run --env-file .env ...`.
 - `python3` on Windows opens the Store; a shim in `~/bin` fixes Git Bash.
 - `fk_` keys from the public Freya playground do not work; staging keys start with `fak_`.
+- `cryptography>=49` has no wheel for Intel Macs: PR #3 pins it below 49.
 - The workflow list route returns `{"workflows": [...], "total", "limit", "offset"}` (deploy.py relies on it).
