@@ -104,6 +104,24 @@ def deadline_for(today, band, spec):
     return add_business_days(today, count, spec)
 
 
+def allowed_dates(today, deadline, spec):
+    """Every business day from today (if it is one) up to and including the deadline."""
+    out, x = [], today
+    if not deadline:
+        return out
+    for _ in range(400):
+        if x > deadline:
+            break
+        if is_business(x, spec):
+            out.append(x)
+        x = x + datetime.timedelta(days=1)
+    return out
+
+
+def short_day(d):
+    return d.isoformat() + " " + WEEKDAYS[d.weekday()][:3] + " " + str(d.day) + " " + MONTHS[d.month - 1][:3]
+
+
 def parse_list(value):
     if isinstance(value, list):
         return value
@@ -243,6 +261,11 @@ def compute(v, spec):
                 + (day_text(dl) + " (" + dl.isoformat() + ")" if dl else "unknown") + ". Persuasion attempts for this product: "
                 + str(x["attempts"]) + " (count them for this product alone; once " + str(x["attempts"])
                 + " offer(s) for this product were refused, make no further offer for it).")
+            ok_days = allowed_dates(today, dl, spec)
+            if ok_days:
+                lines.append(
+                    "  Allowed promise dates for product " + str(n + 1) + " (every business day from today to its deadline; "
+                    + "a date in this list is allowed, any date not in it is not): " + ", ".join(short_day(d) for d in ok_days) + ".")
             v["fx_p" + str(n + 1) + "_deadline"] = dl.isoformat() if dl else ""
             v["fx_p" + str(n + 1) + "_floor"] = money(x["floor"])
         v["fx_product_count"] = str(len(infos))
