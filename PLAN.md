@@ -112,6 +112,11 @@ next confirmed promise, then make the other required calls (e.g. notes), then te
 **Tried and reverted:** "write each product's note as soon as it is settled" made the agent note a refusal before
 making any offer and say "recorded" before recording (PUB-12 0/3). Do not reintroduce it.
 
+**Pre-freeze rehearsal (11 Oct, agents rebuilt from `main` after #21; Freya unstable 10:15–12:20 UTC):**
+- A agent, rep 1: **10/10**. Rep 2: ledger right in **10/10**; 6 judge "pass", 4 judge **"inconclusive"** whose reasons
+  say "all criteria met" (late analysis). Rep 3 and 4 hit the outage (no tool calls / runs stuck) → invalid, cancelled.
+- Judge verdict values seen: `pass`, `fail`, `inconclusive`, `error`. `score_sim` shows ledger-right + no verdict as `JUDGE?`.
+
 The agent model (`experimental-5`) is sometimes slow (median turn 10–26 s); `run_cases.py` warns when it is.
 Test A cases with an agent built from Brief A only: an A+B agent applies Brief B's add_note rule to A cases.
 
@@ -136,6 +141,11 @@ hooks so an outage during the final does not take every call down.
 - [ ] `git checkout main && git pull && uv sync`; `claude` logged in; `.env` has the Freya key and team key.
 - [ ] Offline tests pass: `test_phone_code`, `test_tools`, `test_generate`.
 - [ ] Platform up: one chat turn, or `GET /api/v2/workspaces` answers 200. Credit: `creditsLeft` > 150.
+- [ ] **At most 8 workflows in the workspace** (the hackathon page says 10 per workspace; the final creates 2).
+      List: `GET /api/v2/workflow?workspaceId=…` → `total`. Delete unused dev ones:
+      `freya.api("DELETE", "/api/v2/workflow/<id>", workspaceId=freya.workspace_id())` (works). 11 Oct 12:25 UTC: 7.
+- [ ] If `run_cases.py` died on a 5xx: rescore the finished simulation with `python -m builder.score_sim <sim_id>`;
+      run tests through `python -m builder.run_cases_retry …` (same arguments, retries 5xx).
 - [ ] Repo reachable for the organisers (public, or their account added). Decide before 17:00.
 
 17:00 hidden briefs arrive (mail):
