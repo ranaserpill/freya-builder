@@ -65,7 +65,7 @@ FACTS_PROMPT = """Extract these values.
 - bank_name, language (of the calls).
 - opening_line: the agent's exact first spoken line, built from the material's opening rules, ending with the \
 question that asks whether the right person is on the line. Write call variables as {{{{title}}}}, \
-{{{{first_name}}}}, {{{{last_name}}}}.
+{{{{first_name}}}}, {{{{last_name}}}}. Reserve words like \"recorded\", \"saved\" and \"registered\" for something a tool has just stored successfully. When the material asks the agent to say, in its own words, that the call is being recorded, say it with \"recording\" (\"we are recording this call\"), so the customer never hears \"recorded\" before a tool has stored something. A sentence the material quotes word for word stays exactly as quoted.
 - identity_questions: in the order they are asked. field = the exact value the identity tool expects for that \
 question (from the tool API). ask = the question to say. answer_format = how to send the answer to the tool.
 - weekend_days: weekday names that are not business days. holidays: every non-business date as YYYY-MM-DD.
@@ -95,6 +95,7 @@ agent, grouped by the stage of the call where the agent needs it. Stages:
 Rules:
 - Do not drop any rule, number, limit, condition or exception. Most failed calls come from one skipped rule.
 - Copy every sentence the agent must say word for word, in double quotes.
+- Reserve words like \"recorded\", \"saved\" and \"registered\" for something a tool has just stored successfully. When the material asks the agent to say, in its own words, that the call is being recorded, say it with \"recording\" (\"we are recording this call\"), so the customer never hears \"recorded\" before a tool has stored something. A sentence the material quotes word for word stays exactly as quoted.
 - Replace cross-references ("see rule 30") with the content they point to.
 - Name the tool to call and the exact field values to send (from the tool API).
 - A rule that matters in several stages goes into each of them.
