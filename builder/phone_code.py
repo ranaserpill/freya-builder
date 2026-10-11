@@ -244,8 +244,11 @@ def offers_text(x, today, spec):
             + "is not one of them). When the customer has refused the last one, this product ends without a promise.")
 
 
-def calendar_text(today, until, spec):
+def calendar_text(today, until, spec, deadlines=None):
+    """One line per day. With the products' deadlines, a non-business day also names the first allowed date after
+    it, and a day after a product's deadline says so, so the agent reads the answer instead of comparing dates."""
     lines, hol = [], holiday_set(spec)
+    deadlines = [d for d in (deadlines or []) if d]
     monday = today - datetime.timedelta(days=today.weekday())
     x = today
     while x <= until:
@@ -257,6 +260,12 @@ def calendar_text(today, until, spec):
             kind = "weekend, not a business day"
         else:
             kind = "business day"
+        if kind != "business day" and x > today:
+            nb = next_business(x, spec)
+            kind += "; first allowed date after it: " + day_text(nb) + " (" + nb.isoformat() + ")"
+        late = [str(i + 1) for i, d in enumerate(deadlines) if x > d]
+        if late:
+            kind += "; AFTER the deadline of product " + ", ".join(late)
         lines.append("- " + x.isoformat() + " " + day_text(x) + " (" + when + ("; TODAY" if x == today else "") + "): " + kind)
         x = x + datetime.timedelta(days=1)
     return "\n".join(lines)
@@ -331,12 +340,21 @@ def compute(v, spec):
                 lines.append(
                     "  Allowed promise dates for product " + str(n + 1) + " (every business day from today to its deadline; "
                     + "a date in this list is allowed, any date not in it is not): " + ", ".join(short_day(d) for d in ok_days) + ".")
+                gaps, g = [], today + datetime.timedelta(days=1)
+                while g < dl:
+                    if not is_business(g, spec):
+                        gaps.append(short_day(g) + " -> " + short_day(next_business(g, spec)))
+                    g = g + datetime.timedelta(days=1)
+                if gaps:
+                    lines.append("  Weekend days and holidays before the deadline of product " + str(n + 1)
+                                 + ", each with the first allowed date after it: " + "; ".join(gaps)
+                                 + ". A date after the deadline: the latest allowed date is the deadline.")
             v["fx_p" + str(n + 1) + "_deadline"] = dl.isoformat() if dl else ""
             v["fx_p" + str(n + 1) + "_floor"] = money(x["floor"])
         v["fx_product_count"] = str(len(infos))
         v["fx_account_facts"] = "\n".join(lines) if lines else "The account could not be read."
         v["fx_account_state"] = "ok" if lines else "missing"
-        v["fx_calendar"] = calendar_text(today, until + datetime.timedelta(days=7), spec)
+        v["fx_calendar"] = calendar_text(today, until + datetime.timedelta(days=7), spec, [x["deadline"] for x in infos])
     except Exception as e:
         v["fx_error"] = str(e)[:300]
         for k in ("fx_today", "fx_today_text", "fx_next_business_day", "fx_date_facts", "fx_callback_text",

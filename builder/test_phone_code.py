@@ -56,7 +56,7 @@ def main():
                 if pr["date"] > deadline:
                     print("FAIL", c["id"], pr, "after deadline", deadline); bad += 1
                 line = next(l for l in v["fx_calendar"].splitlines() if l.startswith(f"- {pr['date']} "))
-                if not line.endswith(": business day"):
+                if "): business day" not in line:
                     print("FAIL", c["id"], pr["date"], "is not a business day:", line); bad += 1
     # Exact deadlines the cases name in their checks
     expect = {("PUB-04", 1): "2026-10-23", ("PUB-13", 2): "2026-10-23", ("PUB-07", 1): "2026-11-02", ("PUB-13", 1): "2026-11-02"}
