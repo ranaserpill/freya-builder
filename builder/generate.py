@@ -58,6 +58,7 @@ def conversation(name: str, task: str, node_tools: list, transitions=None, on_en
         "tools": node_tools + [tools.end_call_tool()],
         "transitions": transitions or [],
         "max_node_turns": 80,
+        "max_turn_transition": "wrap_up",   # a stuck call ends politely; close_call still runs
         "on_enter": on_enter or {"type": "llm"},
         "on_enter_first_entry_only": True,
     }
@@ -204,6 +205,26 @@ INSTRUCTIONS
             [tool("create_promise")] + mentioned("\n".join(ins["collection"] + ins["global"]), [n for n in names if n in ("add_note", "transfer_to_agent", "schedule_callback")]),
         ),
     }
+    nodes["wrap_up"] = {
+        "name": "wrap_up",
+        "node_type": "end_call",
+        "on_enter": {"type": "silent"},
+        "disable_inactivity_monitor": True,
+        "transitions": [],
+        "terminal": {"type": "function", "function": {
+            "name": "turn_limit_reached",
+            "handler": "__function__:end_call",
+            "parameters": {"type": "object", "properties": {
+                "message_mode": {"type": "string", "default": "custom"},
+                "spoken_message": {"type": "string", "default": "Thank you for your time. Goodbye."},
+            }},
+        }},
+    }
+    # Layout for the dashboard editor only (no effect on the call): main path left to right, third party below.
+    for i, key in enumerate(["setup", "opening", "identity", "load_account", "compute", "collection"]):
+        nodes[key]["position"] = {"x": i * 420, "y": 0}
+    nodes["third_party"]["position"] = {"x": 420, "y": 520}
+    nodes["wrap_up"]["position"] = {"x": 2100, "y": 520}
     url, op = ops["close_call"]
     close = tools.api_tool(
         "close_call", url, op,
