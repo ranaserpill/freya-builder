@@ -99,10 +99,15 @@ Offline tests (no Freya, no credit; run all before every PR):
 | + spec: an attempt is an offer, count offers not refusals (PR #15) | PUB-05/06/07 3/3 (agent from A) | **PUB-12 3/3**, PUB-11 ✓, PUB-13 ✓ |
 | 11 Oct 07:20, all 13 cases, agents from main after #15 | 9/10 (PUB-05: support team mentioned again in the goodbye) | 2/3 (**PUB-13: the agent said 30 Oct is after the 2 Nov deadline** — the model compares dates wrongly; code computed the deadline right) |
 | + spec: "offer once" = never brought up again (PR #16) | PUB-05 **3/3**, PUB-03 ✓, PUB-06 ✓ | – |
+| + allowed promise dates per product (PR #17, measured by Rana) | PUB-07 **3/3**, PUB-04 ✓, PUB-06 ✓ | **PUB-13 3/3**, PUB-11 ✓ |
+| + concrete persuasion offers per product (PR #17, A+B agent, 11 Oct 09:00 UTC) | – | PUB-12 **2/3** (offer counts right in all 3; the failing run skipped the two `add_note` calls in a run with a 70 s agent turn and a customer hang-up), PUB-11 ✓, PUB-13 ✓ |
 
-**Open, highest value (Şevval's files): date comparisons must not be left to the agent model.** PUB-13 shows the model
-calling an allowed date "after the deadline". Options: phone_code lists each product's allowed promise dates
-explicitly (membership instead of comparison), and/or the `create_promise` pre-hook guard from the handoff (item 1).
+Date comparisons: done (PR #17 lists each product's allowed dates; the agent checks membership). rules-c and
+rules-c-multi pass `test_spec` with the offers check.
+
+**Open (Şevval's files):** `add_note` for products without a promise can be forgotten (PUB-12 run above). Idea: a
+generic "before your goodbye, make every tool call your instructions require at the end of a product" line in the
+collection step, or a check in the `end_call` description. Measure with PUB-12 only (~0.3 credit).
 
 The agent model (`experimental-5`) is sometimes slow (median turn 10–26 s); `run_cases.py` warns when it is.
 Test A cases with an agent built from Brief A only: an A+B agent applies Brief B's add_note rule to A cases.
