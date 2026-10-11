@@ -74,10 +74,9 @@ EXPECTED = {
 EXPECTED["rules-c-multi"] = {
     **EXPECTED["rules-c"],
     "files": ["rules-c.md", "rules-c-multi.md"],
-    "openapi": "rules-c.openapi.json",
     "holidays": {"2026-10-19", "2026-11-03", "2026-12-24", "2026-12-31", "2027-01-06"},
     "must_say": EXPECTED["rules-c"]["must_say"] + ["add_note", "system_error", "contested", "vulnerability"],
-    "must_not_appear": EXPECTED["rules-c"]["must_not_appear"] + ["2026-11-02"],
+    # 2026-11-02 may still appear as "is NOT a holiday"; the holiday set above already checks the change.
 }
 
 
