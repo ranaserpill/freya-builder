@@ -1,0 +1,19 @@
+{
+  "team": "Build Cousins",
+  "members": [
+    {
+      "name": "Rana Serpil",
+      "email": "ranaserpil@outlook.com"
+    },
+    {
+      "name": "Şevval Değirmenci",
+      "email": "sevvaldegirmenci79@gmail.com"
+    }
+  ],
+  "repo": "https://github.com/ranaserpill/freya-builder",
+  "commit": "dfea8f89f1012097b58404653082d92370bbc539",
+  "run_command": "uv run builder/build_case.py {case_folder} --mock-url https://freya-bank-mock-build-cousins.grave-hamster.workers.dev --name final",
+  "workflow": "submission/final.workflow.json",
+  "trace": "traces/final.session.jsonl",
+  "mock_url": "https://freya-bank-mock-build-cousins.grave-hamster.workers.dev"
+}
