@@ -151,6 +151,10 @@ making any offer and say "recorded" before recording (PUB-12 0/3). Do not reintr
   **Edge run invalid:** the mock bank answered Cloudflare 530/1033 to every tool call (calls cut after one turn).
 - **Final regression on `main` f2c61df (Rana, 16:28 UTC): A 10/10, B 3/3 — 13/13.** Tried a "find the named day in the
   calendar" prompt rule for PUB-07: 0/3, reverted (not merged). **Use `main` as is for the hidden briefs.**
+- **PR #32 (Rana, before 17:00 UTC):** spec: a fallback such as "propose the deadline" applies only when the customer
+  names no day; a named day that is not allowed goes to the weekend/holiday/after-deadline rules; ask/try limits written
+  as numbers. **PUB-07 3/3** (was 0–2/3). Regression A 10/10, B 3/3. Edge EDGE-02 (asks a 3rd time) and EDGE-07 (says
+  "Friday 24 Oct" aloud, records 23 Oct right) still fail the judge 0/3; PUB-12 2/3 (persuasion count, known).
 - **Verdict: freeze `main` after PR #28.**
 - Judge verdict values seen: `pass`, `fail`, `inconclusive`, `error`. `score_sim` shows ledger-right + no verdict as `JUDGE?`.
 
