@@ -122,7 +122,11 @@ making any offer and say "recorded" before recording (PUB-12 0/3). Do not reintr
 - Final-command rehearsal with `--name submission-rehearsal` (no simulation): raw-a ✅ 305 s (chat 504 retried),
   rules-c + rules-c-multi ✅ 109 s. Found and fixed: a chat-route 504 stopped the build before export (PR #25).
   The rehearsal workflow was deleted afterwards (workspace: 7 workflows).
-- **Verdict: freeze `main` as it is.**
+- Fix for the PUB-12 miss (PR #27): the agent took the customer's up-front "not paying those" as settling the products
+  and wrote the notes with no offer. Now: an up-front refusal does not settle a product; make its listed offers first;
+  the promise hook lists offers before notes. Measured: B x3 → run 1 invalid (median agent turn 70 s, 2 hang-ups),
+  runs 2–3 **3/3 and 3/3** (PUB-12 offers then notes); A x1 **10/10**.
+- **Verdict: freeze `main` after PR #27.**
 - Judge verdict values seen: `pass`, `fail`, `inconclusive`, `error`. `score_sim` shows ledger-right + no verdict as `JUDGE?`.
 
 The agent model (`experimental-5`) is sometimes slow (median turn 10–26 s); `run_cases.py` warns when it is.
