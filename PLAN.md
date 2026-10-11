@@ -132,6 +132,12 @@ making any offer and say "recorded" before recording (PUB-12 0/3). Do not reintr
   said the full amount was too much).
 - Fix (PR #28): "when the customer accepts a date, keep the amount on the table; never lower it on your own; never
   attribute words to the customer". Measured: PUB-04 corrects **2/2**, PUB-04 + PUB-06 normal ✓, PUB-12 ✓.
+- **Regression on `main` after #28 (Rana, 14:25 UTC):** A **10/10**; B PUB-11 ✓, PUB-13 ✓, PUB-12 ✗ — offers right but
+  **no `add_note`**: the agent said "recorded" and goodbye in one turn, skipping the promise hook's last step.
+- Fix (PR #29, tools.py promise hook): when every product is settled, make the required calls (notes) **first**, then
+  tell the customer and finish. Measured: B `--reps 3`: PUB-11 **3/3**, PUB-13 **3/3**, PUB-12 1/3 — **notes written
+  in all 3 runs** (ledger right); the 2 misses are the known persuasion-count risk on the personal loan (judge).
+  A promise cases PUB-01/06/10 ✓ (no regression).
 - **Verdict: freeze `main` after PR #28.**
 - Judge verdict values seen: `pass`, `fail`, `inconclusive`, `error`. `score_sim` shows ledger-right + no verdict as `JUDGE?`.
 
