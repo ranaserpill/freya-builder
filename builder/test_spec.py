@@ -23,6 +23,7 @@ EXPECTED = {
         "weekend_days": {"saturday", "sunday"},
         "holidays": {"2026-10-26", "2026-10-30", "2026-11-11", "2026-11-26", "2026-12-25", "2027-01-01"},
         "bands": [(1, 7, 12, 1), (8, 45, 5, 2)],          # memo: late band 7 -> 5 business days
+        "offers": {1: [("full_or_floor", "end_of_week")], 8: [("full_or_floor", "end_of_week"), ("floor", "deadline")]},
         "floors": {"credit_card": "minimum_payment", "personal_loan": "instalment_amount", "car_loan": "instalment_amount"},
         "callback": ("10:00", "18:00", 1),                 # memo: 19:00 -> 18:00
         "promise_attempts_max": 2,
@@ -48,6 +49,8 @@ EXPECTED = {
         "weekend_days": {"saturday", "sunday"},
         "holidays": {"2026-10-19", "2026-11-02", "2026-12-24", "2026-12-31", "2027-01-06"},
         "bands": [(1, 10, 10, 1), (11, 30, 6, 2), (31, 60, 3, 2)],
+        "offers": {1: [("full", "deadline")], 11: [("full", "deadline"), ("floor", "deadline")],
+                   31: [("full", "deadline"), ("floor", "deadline")]},
         "floors": {"credit_card": "minimum_due", "overdraft": "minimum_due", "mortgage": "monthly_payment"},
         "callback": ("09:00", "17:30", 2),
         "promise_attempts_max": 3,
@@ -97,6 +100,8 @@ def check(name: str, spec: dict) -> list[str]:
     eq("holidays", set(spec["holidays"]), exp["holidays"])
     bands = sorted((b["min_days_late"], b["max_days_late"], b["deadline_count"], b["persuasion_attempts"]) for b in spec["bands"])
     eq("bands (min, max, deadline, attempts)", bands, exp["bands"])
+    offers = {b["min_days_late"]: [(o["amount"], o["date"]) for o in b.get("offers") or []] for b in spec["bands"]}
+    eq("band offers (amount, date) by min days late", offers, exp["offers"])
     units = {b["deadline_unit"] for b in spec["bands"]}
     eq("band deadline units", units, {"business_days"})
     eq("product floors", {p["type"]: p["floor_field"] for p in spec["product_types"]}, exp["floors"])

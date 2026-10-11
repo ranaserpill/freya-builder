@@ -182,8 +182,66 @@ def product_info(p, index, today, spec):
         "floor": floor,
         "band": band.get("name") if band else "unknown",
         "attempts": band.get("persuasion_attempts") if band else None,
+        "offers": band.get("offers") if band else None,
         "deadline": deadline,
     }
+
+
+def attempts_text(attempts):
+    """Spell the offer limit out, so the agent does not reuse another product's count."""
+    words = ["NO", "ONE", "TWO", "THREE", "FOUR", "FIVE"]
+    try:
+        n = int(attempts)
+    except Exception:
+        return str(attempts)
+    word = words[n] if 0 <= n < len(words) else str(n)
+    ordinals = ["first", "second", "third", "fourth", "fifth", "sixth"]
+    nxt = ordinals[n] if 0 <= n < len(ordinals) else "further"
+    return (str(n) + ". That means " + word + " offer" + ("" if n == 1 else "s") + " for this product, counted for this "
+            + "product alone: once the customer has refused " + ("it" if n == 1 else "the last one") + ", make no " + nxt
+            + " offer for this product (no lower amount, no other date); it ends without a promise and you go on to the next "
+            + "product")
+
+
+def offer_date(kind, today, deadline, spec):
+    if kind == "end_of_week":
+        d = last_business_of_week(today, spec)
+        if d is None or d <= today:
+            d = last_business_of_week(today + datetime.timedelta(days=7), spec)
+        if d and deadline and d > deadline:
+            d = deadline
+        return d
+    if kind == "deadline":
+        return deadline
+    if kind == "today":
+        return today
+    if kind == "next_business_day":
+        return next_business(today, spec)
+    return None
+
+
+def offers_text(x, today, spec):
+    """The product's persuasion offers as concrete amounts and dates, or "" when the spec has none."""
+    offers = x.get("offers")
+    if not isinstance(offers, list) or not offers:
+        return ""
+    parts = []
+    for i, o in enumerate(offers):
+        if not isinstance(o, dict):
+            continue
+        amount = {"full": money(x["past_due"]), "floor": money(x["floor"]),
+                  "full_or_floor": money(x["past_due"]) + " (or the floor " + money(x["floor"])
+                  + " if the customer already said the full amount is too much)"}.get(str(o.get("amount")))
+        d = offer_date(str(o.get("date")), today, x["deadline"], spec)
+        if amount and d:
+            parts.append("offer " + str(i + 1) + ": " + amount + " on " + day_text(d) + " (" + d.isoformat() + ")")
+        else:
+            parts.append("offer " + str(i + 1) + ": " + str(o.get("text") or ""))
+    if not parts:
+        return ""
+    return ("  Persuasion offers for this product, in this order, one after each refusal: " + "; ".join(parts)
+            + ". Make exactly these offers for this product and no other (the question about paying everything today "
+            + "is not one of them). When the customer has refused the last one, this product ends without a promise.")
 
 
 def calendar_text(today, until, spec):
@@ -258,9 +316,10 @@ def compute(v, spec):
                 "Product " + str(n + 1) + " (product_id " + x["product_id"] + "): " + x["label"] + ". Past due " + money(x["past_due"])
                 + ". " + str(x["days_late"]) + " days late, " + str(x["band"]) + " band. Floor (lowest amount allowed): "
                 + money(x["floor"]) + ". Latest allowed promise date (deadline): "
-                + (day_text(dl) + " (" + dl.isoformat() + ")" if dl else "unknown") + ". Persuasion attempts for this product: "
-                + str(x["attempts"]) + " (count them for this product alone; once " + str(x["attempts"])
-                + " offer(s) for this product were refused, make no further offer for it).")
+                + (day_text(dl) + " (" + dl.isoformat() + ")" if dl else "unknown") + ". Persuasion attempts for this product: " + attempts_text(x["attempts"]) + ".")
+            offer_line = offers_text(x, today, spec)
+            if offer_line:
+                lines.append(offer_line)
             ok_days = allowed_dates(today, dl, spec)
             if ok_days:
                 lines.append(

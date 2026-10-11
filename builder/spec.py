@@ -38,7 +38,10 @@ FACTS_SCHEMA = S(
     holidays=ARR(STR),
     bands=ARR(S(name=STR, min_days_late=INT, max_days_late=INT,
                 deadline_unit={"type": "string", "enum": ["business_days", "calendar_days"]},
-                deadline_count=INT, persuasion_attempts=INT)),
+                deadline_count=INT, persuasion_attempts=INT,
+                offers=ARR(S(amount={"type": "string", "enum": ["full", "floor", "full_or_floor", "other"]},
+                             date={"type": "string", "enum": ["end_of_week", "deadline", "today", "next_business_day", "other"]},
+                             text=STR)))),
     product_types=ARR(S(type=STR, label_template=STR, floor_field=STR)),
     callback=S(earliest=STR, latest=STR, max_business_days_ahead=INT),
     promise_attempts_max=INT,
@@ -70,7 +73,12 @@ question that asks whether the right person is on the line. Write call variables
 question (from the tool API). ask = the question to say. answer_format = how to send the answer to the tool.
 - weekend_days: weekday names that are not business days. holidays: every non-business date as YYYY-MM-DD.
 - bands: how lateness (days_late) sets the latest allowed promise date and the number of persuasion attempts. \
-deadline_count counted from today in deadline_unit. Cover every days_late range the material names.
+deadline_count counted from today in deadline_unit. Cover every days_late range the material names. \
+offers: the band's persuasion attempts in order, exactly persuasion_attempts entries: what the agent proposes after \
+a refusal. amount: full = the full past-due amount; floor = the product's lowest accepted amount; full_or_floor = the \
+full amount, or the floor if the customer already said the full amount is too much; other = anything else. date: \
+end_of_week = the last business day of the current week (of next week if today is that day); deadline = the band's \
+latest allowed date; today; next_business_day; other = anything else. text = the attempt in the material's own words.
 - product_types: one per product type in the tool API's account result. label_template = how the agent names \
 the product aloud, with account fields in square brackets, e.g. "loan ending [last4]". floor_field = the account \
 result field that holds the lowest amount the bank accepts for that product ("" if none).
@@ -173,6 +181,9 @@ def check(facts: dict, tool_api: dict) -> list[str]:
     for h in facts["holidays"]:
         if len(h) != 10 or h[4] != "-" or h[7] != "-":
             problems.append(f"holiday {h!r} is not YYYY-MM-DD")
+    for b in facts["bands"]:
+        if len(b.get("offers") or []) != b["persuasion_attempts"]:
+            problems.append(f"band {b['name']!r}: {len(b.get('offers') or [])} offers for {b['persuasion_attempts']} persuasion attempts")
     ranges = sorted((b["min_days_late"], b["max_days_late"]) for b in facts["bands"])
     if not ranges:
         problems.append("no bands")
