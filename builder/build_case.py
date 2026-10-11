@@ -59,6 +59,31 @@ async def run_agent(case: Path, out: Path, name: str, mock_url: str, minutes: in
     return last
 
 
+SECRET_HEADER_HINTS = ("authorization", "token", "secret", "api-key", "apikey", "x-api", "cookie", "password")
+
+
+def strip_secret_headers(node) -> list[str]:
+    """Remove credential headers from every tool. Freya redacts them on export, and a workflow with a redacted value
+    cannot be imported again (WORKFLOW_SECRET_REDACTED), so the organisers could not load our export. Returns paths."""
+    removed = []
+
+    def walk(x, path):
+        if isinstance(x, dict):
+            headers = x.get("headers")
+            props = headers.get("properties") if isinstance(headers, dict) else None
+            if isinstance(props, dict):
+                for h in [h for h in props if any(s in h.lower() for s in SECRET_HEADER_HINTS)]:
+                    props.pop(h)
+                    removed.append(f"{path}.headers.{h}")
+            for k, v in x.items():
+                walk(v, f"{path}.{k}")
+        elif isinstance(x, list):
+            for i, v in enumerate(x):
+                walk(v, f"{path}[{i}]")
+    walk(node, "workflow")
+    return removed
+
+
 def main(argv: list[str]) -> int:
     ap = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
     ap.add_argument("case")
@@ -82,6 +107,11 @@ def main(argv: list[str]) -> int:
         trace.step("agent summary: " + summary.replace("\n", " ")[:1500])
         wf_path = out / "workflow.json"
         workflow = json.loads(wf_path.read_text(encoding="utf-8"))
+        workflow.pop("agent_config", None)
+        removed = strip_secret_headers(workflow)
+        if removed:
+            trace.step(f"removed {len(removed)} credential header(s) (Freya redacts them on export; the export would not import): "
+                       + ", ".join(sorted({r.rsplit('.', 1)[-1] for r in removed})))
         from builder import deploy
         freya = deploy._freya()
         freya.validate_workflow(f"{a.name}-dryrun-{time.strftime('%H%M%S')}", workflow)
