@@ -149,6 +149,8 @@ making any offer and say "recorded" before recording (PUB-12 0/3). Do not reintr
   Edge cases written: `tests/edge/edge-a.json` (9, Brief A rules no practice case covers), `tests/edge/edge-b.json`
   (3, multi-product). Run: `uv run --env-file .env kit/tools/run_cases.py <agent> --cases tests/edge/edge-a.json`.
   **Edge run invalid:** the mock bank answered Cloudflare 530/1033 to every tool call (calls cut after one turn).
+- **Final regression on `main` f2c61df (Rana, 16:28 UTC): A 10/10, B 3/3 — 13/13.** Tried a "find the named day in the
+  calendar" prompt rule for PUB-07: 0/3, reverted (not merged). **Use `main` as is for the hidden briefs.**
 - **Verdict: freeze `main` after PR #28.**
 - Judge verdict values seen: `pass`, `fail`, `inconclusive`, `error`. `score_sim` shows ledger-right + no verdict as `JUDGE?`.
 
