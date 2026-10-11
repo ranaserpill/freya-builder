@@ -23,9 +23,17 @@ same PR. Keep it short.
 
 - Freya staging workspace: "Şevval Değirmenci's Workspace" on https://staging-app.freyavoice.ai. **One key per
   team** — both of us use the same `fak_` key and the same `FREYA_BANK_TEAM_KEY` (share privately, never commit).
-- **Freya credit (topped up, 10 Oct ~15:30 UTC): 196.5 credits left ≈ $98** (1 credit = $0.50). Simulations are
-  allowed again. Costs are in **credits**: ~0.10 credit (≈ $0.05) per simulated call, so a 13-case `--reps 3`
-  run ≈ 4 credits. 5.98 credits used before the top-up (2.6 of them on the sandbox outage).
+- **Freya credit (checked 11 Oct 06:20 UTC): 496.5 credits left ≈ $248** (1 credit = $0.50; topped up twice).
+  Used so far: 5.98 credits, all on 10 Oct. Costs are in **credits**: ~0.10 credit per simulated call, so a
+  13-case `--reps 3` run ≈ 4 credits. A builder run without `--test` (spec + deploy + one chat turn) ≈ 0.
+  **Budget for 11 Oct (Rana + Şevval agreed):**
+  | Bucket | Credits | When |
+  |---|---|---|
+  | Hidden-brief reserve: builder runs, chat probes, reruns after a crash fix | 150 | Sun 17:00–20:00 UTC |
+  | Team's manual tests at the end | 50 | before submitting |
+  | Pre-freeze check: 13 cases `--reps 3` + one `--style` run per style | ~15 (×2 if a fix needs a recheck) | Sun before 15:00 UTC |
+  | Daytime development (targeted cases) | the rest | until 15:00 UTC |
+  **Hard floor: never let the balance drop below 200 credits before 17:00 UTC** (150 reserve + 50 manual).
   **Credit rules (simulations are allowed, wasting them is not):**
   1. Offline first: `test_phone_code`, `test_tools`, `test_generate` (and `test_spec` for spec changes) must pass
      before any Freya call. Many bugs need no simulation at all.
@@ -83,6 +91,10 @@ Offline tests (no Freya, no credit; run all before every PR):
 | Builder v1, spec from A | 9 (PUB-10: judge read "this call is recorded" in the opening as "recorded" too early; ledger was right) | – |
 | Builder v1, spec from A+B, full pipeline, build 222 s | – | 2 (PUB-12: 2 persuasion attempts on an early-band product; ledger was right) |
 | v1 + per-product attempt wording, 13 cases × 2 | **invalid run**: Freya's Python sandbox was down (see below) | |
+| 11 Oct, agent from `tests/briefs/raw-a.md` (raw material), A cases the memo does not change | 8/9 (only PUB-10, judge read "this call is recorded") | – |
+| same + spec fix "we are recording this call" (PR #13) | PUB-10 **3/3** | – |
+| same, `--style in_words` PUB-01/06/07 | **3/3** | – |
+| same, `--style pieces` PUB-01/03/06 | 2/3 — PUB-03: the simulated customer mixed its pieces into the *correct* date of birth; the agent behaved right (transcript read, not rerun) | – |
 
 The agent model (`experimental-5`) is sometimes slow (median turn 10–26 s); `run_cases.py` warns when it is.
 Test A cases with an agent built from Brief A only: an A+B agent applies Brief B's add_note rule to A cases.
