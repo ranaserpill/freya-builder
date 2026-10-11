@@ -91,6 +91,10 @@ Offline tests (no Freya, no credit; run all before every PR):
 | Builder v1, spec from A | 9 (PUB-10: judge read "this call is recorded" in the opening as "recorded" too early; ledger was right) | – |
 | Builder v1, spec from A+B, full pipeline, build 222 s | – | 2 (PUB-12: 2 persuasion attempts on an early-band product; ledger was right) |
 | v1 + per-product attempt wording, 13 cases × 2 | **invalid run**: Freya's Python sandbox was down (see below) | |
+| 11 Oct, agent from `tests/briefs/raw-a.md` (raw material), A cases the memo does not change | 8/9 (only PUB-10, judge read "this call is recorded") | – |
+| same + spec fix "we are recording this call" (PR #13) | PUB-10 **3/3** | – |
+| same, `--style in_words` PUB-01/06/07 | **3/3** | – |
+| same, `--style pieces` PUB-01/03/06 | 2/3 — PUB-03: the simulated customer mixed its pieces into the *correct* date of birth; the agent behaved right (transcript read, not rerun) | – |
 
 The agent model (`experimental-5`) is sometimes slow (median turn 10–26 s); `run_cases.py` warns when it is.
 Test A cases with an agent built from Brief A only: an A+B agent applies Brief B's add_note rule to A cases.
