@@ -159,7 +159,14 @@ INSTRUCTIONS
 
 RECORDING
 - After the customer confirms, record every confirmed promise right away, one tool call after another, before you
-  say anything else. Never say a promise is recorded before its tool result says so.""" + closing
+  say anything else. Never say a promise is recorded before its tool result says so.
+
+OFFERS BEFORE GIVING UP ON A PRODUCT
+- A refusal the customer gives before you made any offer for a product (for example "I'm not paying that one" at the
+  start) does not settle that product. Make that product's offers, in the order its ACCOUNT lines list them, one at a
+  time. The product is settled only when the customer accepts an offer or has refused its last listed offer.
+- Do not end the call, and do not record a "refused"-type note for a product, while it still has an offer you have
+  not made.""" + closing
 
     party = [{
         "name": "fx_party",

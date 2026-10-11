@@ -174,9 +174,11 @@ def promise_hook(attempts_max: int) -> str:
         _v['fx_promises_ok'] = str(int(_v.get('fx_promises_ok') or 0) + 1)
         _v['fx_promise_fail'] = '0'
         _msg = ('The promise IS recorded. Next, in this order: (1) if the customer confirmed other promises that are '
-                'not recorded yet, call create_promise for the next one now; (2) then make any other tool call your '
-                'instructions require before the call ends (for example a note for each product without a promise); '
-                '(3) then tell the customer what was recorded and finish the call as your instructions say.')
+                'not recorded yet, call create_promise for the next one now; (2) tell the customer it is recorded; '
+                '(3) if another product has offers you have not made yet, make them now, one at a time, as your '
+                'instructions say (a refusal at the start of the call does not settle a product); (4) only when every '
+                'product is settled, make the other tool calls your instructions require before the call ends (for '
+                'example a note for each product without a promise), then finish the call.')
     elif _f + 1 < MAX_ATTEMPTS:
         _v['fx_promise_fail'] = str(_f + 1)
         _msg = 'FAILED: ' + _err + '. NOTHING was recorded. Do not say it is recorded. Call create_promise again right now with exactly the same values.'
