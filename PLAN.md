@@ -95,6 +95,8 @@ Offline tests (no Freya, no credit; run all before every PR):
 | same + spec fix "we are recording this call" (PR #13) | PUB-10 **3/3** | – |
 | same, `--style in_words` PUB-01/06/07 | **3/3** | – |
 | same, `--style pieces` PUB-01/03/06 | 2/3 — PUB-03: the simulated customer mixed its pieces into the *correct* date of birth; the agent behaved right (transcript read, not rerun) | – |
+| 11 Oct, A+B agent from main (PRs #11–#14) | – | 2/3 (PUB-12: no persuasion on products refused up front) |
+| + spec: an attempt is an offer, count offers not refusals (PR this) | PUB-05/06/07 3/3 (agent from A) | **PUB-12 3/3**, PUB-11 ✓, PUB-13 ✓ |
 
 The agent model (`experimental-5`) is sometimes slow (median turn 10–26 s); `run_cases.py` warns when it is.
 Test A cases with an agent built from Brief A only: an A+B agent applies Brief B's add_note rule to A cases.

@@ -97,6 +97,7 @@ Rules:
 - Copy every sentence the agent must say word for word, in double quotes.
 - Reserve words like \"recorded\", \"saved\" and \"registered\" for something a tool has just stored successfully. When the material asks the agent to say, in its own words, that the call is being recorded, say it with \"recording\" (\"we are recording this call\"), so the customer never hears \"recorded\" before a tool has stored something. A sentence the material quotes word for word stays exactly as quoted.
 - Replace cross-references ("see rule 30") with the content they point to.
+- If the material counts persuasion attempts, spell out what an attempt is: an offer the agent makes after the customer refuses. Write that a refusal is answered with the next attempt's offer while the product has attempts left, that this also holds when the customer refuses several products at once (take them one by one), and that a product ends without a promise only after the customer has refused its last attempt. Make the count concrete: the agent counts the offers it has made for that product, not the customer's refusals; a product with N attempts gets at most N offers in total (the opening question about paying today is not an offer); restate this next to each band's attempt number.
 - Name the tool to call and the exact field values to send (from the tool API).
 - A rule that matters in several stages goes into each of them.
 - Write for the agent, not about it: "Ask ...", "Never ...", "If the customer ..., then ...".
