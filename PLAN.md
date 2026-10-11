@@ -188,6 +188,16 @@ identity-failed flag `fx_identity`).
 
 ## Gotchas already solved (do not debug these again)
 
+**Freya outages (tips from another team, confirmed by us on 11 Oct 09:38–10:07 UTC: 503/504/502):**
+- Check the parts separately: a 504 on `/api/v2/chat/message` does not mean simulations are down.
+- What runs in the workspace: `GET /api/v2/simulations?workspaceId=…&limit=10`. Only one runs at a time.
+- Do not kill `run_cases.py` hoping to stop a run: the simulation keeps running on Freya and the next test waits
+  for it. A stuck one (another team had one "running" for 9 h) stops with `POST /api/v2/simulations/{id}/cancel`.
+- `builder/deploy.py` now retries 5xx answers 3× with 10 s waits (GET/PUT/dry run/publish/chat; a workflow create
+  is never repeated blindly). `kit/freya.py` alone does not retry; `run_cases.py` does not either.
+- **No tool calls in any customer and a median agent turn of 0 s = an outage, not a bug in the agent.** Do not
+  "fix" the workflow after such a run; wait and rerun. (Ours: PUB-12 run with `tools: []`, judge "analysis never arrived".)
+
 - Python on Şevval's Windows machine fails TLS to the mock bank ("certificate has expired"): set
   `SSL_CERT_FILE=C:/Users/<you>/.ssl/ca-bundle.crt` (a copy of Git's CA bundle) in `.env`. No spaces in the path:
   `uv run --env-file` cannot parse them.
