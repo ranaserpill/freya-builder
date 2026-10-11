@@ -126,7 +126,13 @@ making any offer and say "recorded" before recording (PUB-12 0/3). Do not reintr
   and wrote the notes with no offer. Now: an up-front refusal does not settle a product; make its listed offers first;
   the promise hook lists offers before notes. Measured: B x3 → run 1 invalid (median agent turn 70 s, 2 hang-ups),
   runs 2–3 **3/3 and 3/3** (PUB-12 offers then notes); A x1 **10/10**.
-- **Verdict: freeze `main` after PR #27.**
+- Speech styles on PUB-04/06/07 (A agent): asks_back **3/3**; talkative 2/3 (PUB-04: the simulated customer's turns
+  were cut mid-sentence and never gave a date; the agent treated non-answers as refusals as the brief says — simulator
+  artefact); corrects 2/3 (PUB-04: **real miss**, the agent lowered the amount to the floor, claiming the customer had
+  said the full amount was too much).
+- Fix (PR #28): "when the customer accepts a date, keep the amount on the table; never lower it on your own; never
+  attribute words to the customer". Measured: PUB-04 corrects **2/2**, PUB-04 + PUB-06 normal ✓, PUB-12 ✓.
+- **Verdict: freeze `main` after PR #28.**
 - Judge verdict values seen: `pass`, `fail`, `inconclusive`, `error`. `score_sim` shows ledger-right + no verdict as `JUDGE?`.
 
 The agent model (`experimental-5`) is sometimes slow (median turn 10–26 s); `run_cases.py` warns when it is.
