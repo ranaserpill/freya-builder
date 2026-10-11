@@ -55,11 +55,19 @@ def main(argv: list[str]) -> int:
         print(json.dumps(deploy.deploy(argv[2], wf)))
     elif cmd == "chat":
         wid, variables, turns = argv[2], json.loads(argv[3]), argv[4:]
-        r = freya.api("POST", "/api/v2/chat/message", {"workflowId": wid, "message": turns[0] if turns else "Alo?", "customerVariables": variables})
+        try:
+            r = freya.api("POST", "/api/v2/chat/message", {"workflowId": wid, "message": turns[0] if turns else "Alo?", "customerVariables": variables})
+        except RuntimeError as exc:
+            print(f"  (first turn failed: {str(exc)[:60]})"); return 1
         cid = r.get("callId")
         print(f"call_id {cid}")
+        import time
         for t in turns[1:]:
-            freya.api("POST", "/api/v2/chat/message", {"callId": cid, "message": t})
+            try:
+                freya.api("POST", "/api/v2/chat/message", {"callId": cid, "message": t})
+            except RuntimeError as exc:      # a slow turn can 504 at the gateway while the call goes on
+                print(f"  (turn {t!r}: {str(exc)[:60]}; continuing)")
+                time.sleep(15)
         try:
             freya.api("POST", "/api/v2/chat/end", {"callId": cid})
         except Exception:

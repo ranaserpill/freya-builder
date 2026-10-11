@@ -23,12 +23,19 @@ from builder import trace  # noqa: E402
 from builder.build import load_env  # noqa: E402
 
 
-async def run_agent(case: Path, out: Path, name: str, mock_url: str, minutes: int, session_log: Path) -> str:
+async def run_agent(case: Path, out: Path, name: str, mock_url: str, minutes: int, session_log: Path, repair: bool = False) -> str:
     from claude_agent_sdk import AssistantMessage, ClaudeAgentOptions, ResultMessage, TextBlock, ToolUseBlock, query
     skill = (ROOT / "builder" / "case_skill.md").read_text(encoding="utf-8")
     prompt = (f"Case folder: {case}\nOutput folder: {out}\nWorkflow name to deploy under: {name}\n"
               f"Mock base URL for every tool: {mock_url}\nTime budget: {minutes} minutes from now "
               f"(started {time.strftime('%H:%M:%S')}). Use `date` to check the time.\n\nFollow the instructions.")
+    if repair:
+        prompt += ("\n\nREPAIR MODE. A previous run of this builder left its work in the output folder (notes.md, the "
+                   "generator script if any, workflow.json). Do not start over: read them, then chat-test the workflow "
+                   "against EVERY example conversation the case folder gives (each expected behaviour, including the "
+                   "adversarial ones), with the customer turns those examples describe. For each deviation from the "
+                   "expected behaviour, fix the generator/workflow at its cause, redeploy and retest that example. "
+                   "Change nothing that already behaves as expected. Leave the final workflow at the same path.")
     options = ClaudeAgentOptions(
         cwd=str(ROOT),
         add_dirs=[str(case)],
@@ -90,6 +97,7 @@ def main(argv: list[str]) -> int:
     ap.add_argument("--mock-url", default=os.environ.get("MOCK_URL", ""))
     ap.add_argument("--name", default="final")
     ap.add_argument("--minutes", type=int, default=40)
+    ap.add_argument("--repair", action="store_true", help="start from the previous run's output and fix deviations from the case's example conversations")
     a = ap.parse_args(argv[1:])
     load_env(ROOT / ".env")
     a.mock_url = a.mock_url or os.environ.get("MOCK_URL", "")
@@ -98,12 +106,12 @@ def main(argv: list[str]) -> int:
     case, out = Path(a.case).resolve(), ROOT / "out" / a.name
     out.mkdir(parents=True, exist_ok=True)
     (ROOT / "traces").mkdir(exist_ok=True)
-    session_log = ROOT / "traces" / f"{a.name}.session.jsonl"
+    session_log = ROOT / "traces" / (f"{a.name}.repair.session.jsonl" if a.repair else f"{a.name}.session.jsonl")
     trace.start(str(case), a.mock_url)
     trace.step(f"workflow name: {a.name}; case files: {sum(1 for p in case.rglob('*') if p.is_file())}")
     ok, t0 = False, time.time()
     try:
-        summary = asyncio.run(run_agent(case, out, a.name, a.mock_url.rstrip("/"), a.minutes, session_log))
+        summary = asyncio.run(run_agent(case, out, a.name, a.mock_url.rstrip("/"), a.minutes, session_log, a.repair))
         trace.step("agent summary: " + summary.replace("\n", " ")[:1500])
         wf_path = out / "workflow.json"
         workflow = json.loads(wf_path.read_text(encoding="utf-8"))
