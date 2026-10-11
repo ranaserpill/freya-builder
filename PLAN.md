@@ -99,6 +99,8 @@ Offline tests (no Freya, no credit; run all before every PR):
 | + spec: an attempt is an offer, count offers not refusals (PR #15) | PUB-05/06/07 3/3 (agent from A) | **PUB-12 3/3**, PUB-11 ✓, PUB-13 ✓ |
 | 11 Oct 07:20, all 13 cases, agents from main after #15 | 9/10 (PUB-05: support team mentioned again in the goodbye) | 2/3 (**PUB-13: the agent said 30 Oct is after the 2 Nov deadline** — the model compares dates wrongly; code computed the deadline right) |
 | + spec: "offer once" = never brought up again (PR #16) | PUB-05 **3/3**, PUB-03 ✓, PUB-06 ✓ | – |
+| + allowed dates per product (PR #17) | PUB-07 **3/3**, PUB-04 ✓, PUB-06 ✓ | **PUB-13 3/3**, PUB-11 ✓; PUB-12 1/3 (offers still invented by the model) |
+| + concrete persuasion offers per product (PR #17) | not measured: **Freya 504 on every call from ~11:10 UTC** | not measured |
 
 **Open, highest value (Şevval's files): date comparisons must not be left to the agent model.** PUB-13 shows the model
 calling an allowed date "after the deadline". Options: phone_code lists each product's allowed promise dates
@@ -120,20 +122,20 @@ hooks so an outage during the final does not take every call down.
 - Sun 17:00 hidden briefs: `uv run builder/build.py <brief> <openapi> --name submission-<brief> 2>&1 | tee traces/hidden-N.log`,
   check the trace, commit `submission/` + `traces/`, send the submission JSON (target 19:00, deadline 20:00).
 
-## Owners and next steps
+## Owners and next steps (updated 11 Oct ~11:00 UTC)
 
-| Rana | Şevval |
-|---|---|
-| `spec.py` from now on (extraction, schema, checks) and its tests (`test_spec.py`, `tests/briefs/`) | `generate.py`, `tools.py`, `phone_code.py`, `deploy.py`, `build.py` |
-| Run `test_spec.py` on `raw-a` and `rules-c`; fix misses in spec.py | Outage resilience; persuasion counting; speech styles |
-| Idea: a "normalise" step (raw material → one consolidated brief) if `raw-a` shows misses | Before freeze: `--reps 3` on all cases + a few `--style` runs, final-run rehearsal |
+**Şevval's machine continues from here** (Rana's session handed off: `docs/HANDOFF-rana-2026-10-11.md`).
+Rana's edits to Şevval's files (#14, #17) were made with Rana's go-ahead while Şevval was away.
 
-Ideas not started (decide by cost): self-test personas generated from the spec (the mock bank creates practice
-sessions only for the 13 public case ids, so hidden-brief self-tests need another way), and an LLM repair loop on
-failed transcripts (fits the 30 min budget, but costs Freya credit per run).
+Next, in order (details in the handoff):
+1. Confirm #17 on all 13 cases once (agents from Brief A and from A+B; ~1.3 credits).
+2. Before **15:00 UTC freeze**: 13 cases `--reps 3` + a few `--style` runs.
+3. Final rehearsal of the exact command on `tests/briefs/raw-a.md` / `rules-c.md` (`--name submission-rehearsal-*`).
+4. **17:00 UTC** hidden briefs → build, check `END ok`, commit `submission/` + `traces/`, submit by 19:00 (deadline 20:00).
+5. Optional: `create_promise` pre-hook guard; outage resilience.
 
-Hook tests: `uv run python -m builder.test_tools` (Rana's three findings fixed: no engine `vars`, string body,
-identity-failed flag `fx_identity`).
+Ideas not started: self-test personas from the spec (the mock bank only knows the 13 public case ids), LLM repair
+loop on failed transcripts.
 
 ## Gotchas already solved (do not debug these again)
 
