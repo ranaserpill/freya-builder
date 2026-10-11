@@ -15,8 +15,11 @@ SPEC_A = {
     "weekend_days": ["Saturday", "Sunday"],
     "holidays": ["2026-10-26", "2026-11-11", "2026-11-26", "2026-12-25", "2027-01-01"],
     "bands": [
-        {"name": "early", "min_days_late": 1, "max_days_late": 7, "deadline_unit": "business_days", "deadline_count": 12, "persuasion_attempts": 1},
-        {"name": "late", "min_days_late": 8, "max_days_late": 45, "deadline_unit": "business_days", "deadline_count": 7, "persuasion_attempts": 2},
+        {"name": "early", "min_days_late": 1, "max_days_late": 7, "deadline_unit": "business_days", "deadline_count": 12, "persuasion_attempts": 1,
+         "offers": [{"amount": "full_or_floor", "date": "end_of_week", "text": "attempt 1"}]},
+        {"name": "late", "min_days_late": 8, "max_days_late": 45, "deadline_unit": "business_days", "deadline_count": 7, "persuasion_attempts": 2,
+         "offers": [{"amount": "full_or_floor", "date": "end_of_week", "text": "attempt 1"},
+                    {"amount": "floor", "date": "deadline", "text": "attempt 2"}]},
     ],
     "product_types": [
         {"type": "credit_card", "label_template": "credit card ending [card_last4]", "floor_field": "minimum_payment"},

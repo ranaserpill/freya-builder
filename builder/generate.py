@@ -146,6 +146,7 @@ The account is loaded for you automatically once identity is verified: never cal
 
 ACCOUNT (computed for you; trust these values)
 {{{{fx_account_facts}}}}
+To check a promise date, look it up in that product's "Allowed promise dates" list; never compare dates yourself. A date in the list is allowed, even the last one. For a date that is not in the list: if it falls before the last listed date (a weekend or holiday), the first allowed date after it is the next date in the list that comes after it, not the last one; if it is after the last listed date, the last listed date is the latest allowed. Then follow your instructions for dates that are not allowed.
 
 DATES (computed for you; trust these values)
 {{{{fx_date_facts}}}}
