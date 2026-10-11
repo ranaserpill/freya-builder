@@ -128,6 +128,49 @@ hooks so an outage during the final does not take every call down.
 - Sun 17:00 hidden briefs: `uv run builder/build.py <brief> <openapi> --name submission-<brief> 2>&1 | tee traces/hidden-N.log`,
   check the trace, commit `submission/` + `traces/`, send the submission JSON (target 19:00, deadline 20:00).
 
+## Final-night checklist (Sun, UTC; TR = UTC+3)
+
+**One machine runs the final** (Şevval's, tested end to end; Rana's is the backup). The other person checks.
+
+16:30 pre-flight (no simulation):
+- [ ] `git checkout main && git pull && uv sync`; `claude` logged in; `.env` has the Freya key and team key.
+- [ ] Offline tests pass: `test_phone_code`, `test_tools`, `test_generate`.
+- [ ] Platform up: one chat turn, or `GET /api/v2/workspaces` answers 200. Credit: `creditsLeft` > 150.
+- [ ] Repo reachable for the organisers (public, or their account added). Decide before 17:00.
+
+17:00 hidden briefs arrive (mail):
+- [ ] Save as `briefs/hidden-1.md`, `briefs/hidden-1.openapi.json`, `briefs/hidden-2.md`, `briefs/hidden-2.openapi.json`
+      (raw material with several files: pass all brief files in order, the openapi last).
+- [ ] Run both (they can run in parallel, ~2–4 min each):
+      `uv run builder/build.py briefs/hidden-1.md briefs/hidden-1.openapi.json --name submission-hidden-1 2>&1 | tee traces/hidden-1.log`
+      `uv run builder/build.py briefs/hidden-2.md briefs/hidden-2.openapi.json --name submission-hidden-2 2>&1 | tee traces/hidden-2.log`
+- [ ] Each trace ends with `END ok`, shows the MODEL lines, `FREYA workflow=… agent=…`, `TEST chat smoke test … 1/1`, and
+      `exported to submission/submission-hidden-N.workflow.json`. Check for leftover keys (trace.py redacts them).
+- [ ] Read `out/submission-hidden-N.spec.json` once: identity questions, bands, holidays, outcomes look like the brief.
+- [ ] If a run crashes: fix the bug generically (nothing from the hidden brief in code or prompts), commit, rerun, and
+      submit only the trace of the run whose workflow you submit. Never edit the agent on the platform.
+
+18:30 submit (deadline 20:00):
+- [ ] Commit `submission/submission-hidden-*.workflow.json` and `traces/hidden-*.log` to `main`; note the commit hash.
+- [ ] Send the form to the address in the kit email:
+
+```json
+{
+  "team": "<our team name>",
+  "repo": "https://github.com/ranaserpill/freya-builder",
+  "commit": "<hash of the commit above>",
+  "run_command": "uv run builder/build.py {brief_path} {tool_api_path}",
+  "workflows": {
+    "hidden-1": "submission/submission-hidden-1.workflow.json",
+    "hidden-2": "submission/submission-hidden-2.workflow.json"
+  },
+  "traces": {"hidden-1": "traces/hidden-1.log", "hidden-2": "traces/hidden-2.log"}
+}
+```
+
+Organisers rerun the top 10 from the commit: setup is in README (uv, `.env` with their Freya key and team key, a Claude
+login or `ANTHROPIC_API_KEY`).
+
 ## Owners and next steps
 
 | Rana | Şevval |
