@@ -96,8 +96,13 @@ def main(argv: list[str]) -> int:
         trace.created(made["workflow_id"], made["agent_id"], steps, n_tools)
         trace.step(f"{'created' if made['created'] else 'updated'} and published version {made['version']}")
 
-        said = smoke_chat(freya, made["workflow_id"], workflow["test_variables"])
-        trace.test_result("chat smoke test (agent speaks)", int(bool(said)), 1, repr(said[:160]))
+        # A check, not a gate: the agent is already deployed. If Freya's chat route is down (504s seen on 11 Oct),
+        # record that and still export, so the submission file exists.
+        try:
+            said = smoke_chat(freya, made["workflow_id"], workflow["test_variables"])
+            trace.test_result("chat smoke test (agent speaks)", int(bool(said)), 1, repr(said[:160]))
+        except Exception as exc:
+            trace.test_result("chat smoke test (agent speaks)", 0, 1, f"could not run, Freya chat route failed: {str(exc)[:160]}")
 
         if a.test:
             cmd = [sys.executable, str(ROOT / "kit" / "tools" / "run_cases.py"), made["agent_id"], "--brief", a.test, "--reps", str(a.reps),

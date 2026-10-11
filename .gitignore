@@ -18,3 +18,5 @@ tests/out/
 submission/dev-*
 traces/dev-*
 results/
+submission/submission-rehearsal*
+traces/rehearsal-*
