@@ -138,6 +138,17 @@ making any offer and say "recorded" before recording (PUB-12 0/3). Do not reintr
   tell the customer and finish. Measured: B `--reps 3`: PUB-11 **3/3**, PUB-13 **3/3**, PUB-12 1/3 — **notes written
   in all 3 runs** (ledger right); the 2 misses are the known persuasion-count risk on the personal loan (judge).
   A promise cases PUB-01/06/10 ✓ (no regression).
+- **Rana, 14:45–16:00 UTC (PR #30):** A `--reps 3` on main after #29: **9/10 at 3/3** (PUB-07 2/3). B `--reps 3`: PUB-11
+  3/3, PUB-13 3/3, PUB-12 1/3 (notes now always written; misses = persuasion count, known risk).
+  Date engine fixes found offline (`builder/test_dates.py`, new): a callback slot "later than now" was still offered
+  today after the window closed (19:30 call), and window times compared as text ("9:00" > "11:00"). Fixed.
+  PUB-07 (customer names a holiday, agent offers the deadline instead of the next business day): added the next allowed
+  date for every weekend day / holiday before the deadline, both as a per-product line and on each calendar line.
+  **Did not fix PUB-07** (1/3–2/3; the model answers "latest date I can record is <deadline>"); no regression on
+  PUB-02/04 (3/3). Open: a deterministic check of the date the customer names (e.g. an extraction variable + code step).
+  Edge cases written: `tests/edge/edge-a.json` (9, Brief A rules no practice case covers), `tests/edge/edge-b.json`
+  (3, multi-product). Run: `uv run --env-file .env kit/tools/run_cases.py <agent> --cases tests/edge/edge-a.json`.
+  **Edge run invalid:** the mock bank answered Cloudflare 530/1033 to every tool call (calls cut after one turn).
 - **Verdict: freeze `main` after PR #28.**
 - Judge verdict values seen: `pass`, `fail`, `inconclusive`, `error`. `score_sim` shows ledger-right + no verdict as `JUDGE?`.
 
