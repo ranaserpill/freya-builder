@@ -11,8 +11,8 @@
     }
   ],
   "repo": "https://github.com/ranaserpill/freya-builder",
-  "commit": "b007500d0f57b7c5fe599d7653ad20e58ea81316",
-  "run_command": "uv run builder/build_case.py {case_folder} --mock-url https://freya-bank-mock-build-cousins.grave-hamster.workers.dev --name final",
+  "commit": "b996605bca8e2e79f4d7ce0b8ed3727b69641516",
+  "run_command": "uv run builder/build_case.py {case_folder} --mock-url https://freya-bank-mock-build-cousins.grave-hamster.workers.dev --name final && uv run builder/build_case.py {case_folder} --mock-url https://freya-bank-mock-build-cousins.grave-hamster.workers.dev --name final --repair",
   "workflow": "submission/final.workflow.json",
   "trace": "traces/final.session.jsonl",
   "mock_url": "https://freya-bank-mock-build-cousins.grave-hamster.workers.dev"
