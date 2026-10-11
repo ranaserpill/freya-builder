@@ -262,12 +262,18 @@ def calendar_text(today, until, spec):
     return "\n".join(lines)
 
 
+def hhmm(value):
+    """'9:00', '09:00', '9.00' -> '09:00' (so times compare as text); '' when unreadable."""
+    m = re.match(r"\s*(\d{1,2})[:.h](\d{2})", str(value or ""))
+    return ("%02d:%s" % (int(m.group(1)), m.group(2))) if m else ""
+
+
 def callback_text(now, spec):
     cb = spec.get("callback") or {}
-    earliest, latest = str(cb.get("earliest") or ""), str(cb.get("latest") or "")
+    earliest, latest = hhmm(cb.get("earliest")), hhmm(cb.get("latest"))
     ahead = int(cb.get("max_business_days_ahead") or 0)
     today = now.date()
-    days = [today] if is_business(today, spec) else []
+    days = [today] if is_business(today, spec) and not (latest and now.strftime("%H:%M") >= latest) else []
     x = today
     for _ in range(ahead):
         x = next_business(x, spec)
