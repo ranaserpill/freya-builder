@@ -115,6 +115,14 @@ making any offer and say "recorded" before recording (PUB-12 0/3). Do not reintr
 **Pre-freeze rehearsal (11 Oct, agents rebuilt from `main` after #21; Freya unstable 10:15–12:20 UTC):**
 - A agent, rep 1: **10/10**. Rep 2: ledger right in **10/10**; 6 judge "pass", 4 judge **"inconclusive"** whose reasons
   say "all criteria met" (late analysis). Rep 3 and 4 hit the outage (no tool calls / runs stuck) → invalid, cancelled.
+  Clean rerun after the platform recovered (12:45 UTC): **10/10**.
+- A+B agent, B cases `--reps 3`: **PUB-11 3/3, PUB-13 3/3, PUB-12 1/3** — run 1 hit the outage (DOB asked 39× on
+  tool errors); run 3 is a real miss: no second offer on the late-band personal loan. **Known risk, not fixed before
+  the freeze** (persuasion wording lives in spec.py; a change there touches every case).
+- Final-command rehearsal with `--name submission-rehearsal` (no simulation): raw-a ✅ 305 s (chat 504 retried),
+  rules-c + rules-c-multi ✅ 109 s. Found and fixed: a chat-route 504 stopped the build before export (PR #25).
+  The rehearsal workflow was deleted afterwards (workspace: 7 workflows).
+- **Verdict: freeze `main` as it is.**
 - Judge verdict values seen: `pass`, `fail`, `inconclusive`, `error`. `score_sim` shows ledger-right + no verdict as `JUDGE?`.
 
 The agent model (`experimental-5`) is sometimes slow (median turn 10–26 s); `run_cases.py` warns when it is.
