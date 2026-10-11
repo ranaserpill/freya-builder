@@ -155,7 +155,11 @@ Calendar:
 {{{{fx_calendar}}}}
 
 INSTRUCTIONS
-{bullets(ins['collection'])}""" + closing
+{bullets(ins['collection'])}
+
+RECORDING
+- After the customer confirms, record every confirmed promise right away, one tool call after another, before you
+  say anything else. Never say a promise is recorded before its tool result says so.""" + closing
 
     party = [{
         "name": "fx_party",
