@@ -1,7 +1,7 @@
 {
  "workflow_id": "ca3ec5ea-b9cd-4011-9e17-820775e8f19d",
  "agent_id": "7d514702-c499-428a-aa18-162ecdcfb0bc",
- "updated_at": "2026-10-11T18:43:34.219Z",
+ "updated_at": "2026-10-11T19:14:38.705Z",
  "workflow": {
   "nodes": {
    "offer": {
@@ -168,13 +168,25 @@
      {
       "name": "next_action",
       "type": "string",
-      "description": "M\u00fc\u015fterinin istedi\u011fi: 'email' (ekstresini e-postayla istiyor, ge\u00e7mi\u015f ay ekstresi iste\u011fi dahil), 'week_change' (hesap kesim tarihini/haftas\u0131n\u0131 de\u011fi\u015ftirmek istiyor), 'other_card' (KEND\u0130 ba\u015fka bir kart\u0131n\u0131n borcunu soruyor), 'third_party' (e\u015finin, sevgilisinin, annesinin vb. ba\u015fka bir ki\u015finin kart\u0131n\u0131 soruyor), 'nothing' (ba\u015fka iste\u011fi yok, te\u015fekk\u00fcr ediyor, vedala\u015f\u0131yor, hay\u0131r diyor). Belirsizse bo\u015f b\u0131rak.",
+      "description": "M\u00fc\u015fterinin istedi\u011fi: 'email' (ekstresini e-postayla istiyor, ge\u00e7mi\u015f ay ekstresi iste\u011fi dahil), 'week_change' (hesap kesim tarihini/haftas\u0131n\u0131 de\u011fi\u015ftirmek istiyor), 'other_card' (KEND\u0130 ba\u015fka bir kart\u0131n\u0131n borcunu soruyor), 'third_party' (e\u015finin, sevgilisinin, annesinin vb. ba\u015fka bir ki\u015finin kart\u0131n\u0131 soruyor), 'nothing' (ba\u015fka iste\u011fi yok, te\u015fekk\u00fcr ediyor, vedala\u015f\u0131yor, hay\u0131r diyor). Kart numaras\u0131n\u0131n hanelerini istemek veya ba\u015fka bir soru sormak 'nothing' DE\u011e\u0130LD\u0130R; o zaman bo\u015f b\u0131rak. Belirsizse bo\u015f b\u0131rak.",
       "enum_values": [
        "email",
        "week_change",
        "other_card",
        "third_party",
        "nothing"
+      ],
+      "min_confidence": 0.6
+     },
+     {
+      "name": "new_week",
+      "type": "string",
+      "description": "M\u00fc\u015fteri hesap kesim tarihini de\u011fi\u015ftirmek isterken bir hafta da s\u00f6ylediyse: '1','2','3','4' (birinci, ikinci, \u00fc\u00e7\u00fcnc\u00fc, d\u00f6rd\u00fcnc\u00fc hafta). S\u00f6ylemediyse bo\u015f b\u0131rak.",
+      "enum_values": [
+       "1",
+       "2",
+       "3",
+       "4"
       ],
       "min_confidence": 0.6
      }
@@ -650,6 +662,110 @@
      }
     ],
     "transitions": [
+     {
+      "condition": {
+       "logic": "or",
+       "conditions": [
+        {
+         "logic": "and",
+         "conditions": [
+          {
+           "mode": "exact",
+           "operand": "ok",
+           "operator": "equals",
+           "variable": "week_state"
+          },
+          {
+           "mode": "exact",
+           "operand": "1",
+           "operator": "equals",
+           "variable": "new_week"
+          }
+         ]
+        }
+       ]
+      },
+      "description": "Week already chosen 1",
+      "target_node": "week_validate"
+     },
+     {
+      "condition": {
+       "logic": "or",
+       "conditions": [
+        {
+         "logic": "and",
+         "conditions": [
+          {
+           "mode": "exact",
+           "operand": "ok",
+           "operator": "equals",
+           "variable": "week_state"
+          },
+          {
+           "mode": "exact",
+           "operand": "2",
+           "operator": "equals",
+           "variable": "new_week"
+          }
+         ]
+        }
+       ]
+      },
+      "description": "Week already chosen 2",
+      "target_node": "week_validate"
+     },
+     {
+      "condition": {
+       "logic": "or",
+       "conditions": [
+        {
+         "logic": "and",
+         "conditions": [
+          {
+           "mode": "exact",
+           "operand": "ok",
+           "operator": "equals",
+           "variable": "week_state"
+          },
+          {
+           "mode": "exact",
+           "operand": "3",
+           "operator": "equals",
+           "variable": "new_week"
+          }
+         ]
+        }
+       ]
+      },
+      "description": "Week already chosen 3",
+      "target_node": "week_validate"
+     },
+     {
+      "condition": {
+       "logic": "or",
+       "conditions": [
+        {
+         "logic": "and",
+         "conditions": [
+          {
+           "mode": "exact",
+           "operand": "ok",
+           "operator": "equals",
+           "variable": "week_state"
+          },
+          {
+           "mode": "exact",
+           "operand": "4",
+           "operator": "equals",
+           "variable": "new_week"
+          }
+         ]
+        }
+       ]
+      },
+      "description": "Week already chosen 4",
+      "target_node": "week_validate"
+     },
      {
       "condition": {
        "logic": "or",
@@ -3679,7 +3795,7 @@
     "condition": {
      "mode": "exact",
      "operator": "matches_intent",
-     "description": "SADECE \u015fu durumda: m\u00fc\u015fteri kart ekstre borcu, son \u00f6deme tarihi, ekstrenin e-postayla g\u00f6nderimi, hesap kesim tarihi de\u011fi\u015fikli\u011fi, kart se\u00e7imi, \u00f6deme, itiraz veya temsilci d\u0131\u015f\u0131nda tamamen ba\u015fka bir konu soruyor (\u00f6r. kredi faizi, kart limiti, puanlar, taksit, \u015fube saatleri, kredi ba\u015fvurusu, kart bloke etme, adres de\u011fi\u015fikli\u011fi). Hesap kesim tarihi/haftas\u0131 de\u011fi\u015ftirme, ekstre g\u00f6nderme, kart numaras\u0131/haneleri isteme, kart se\u00e7me, bor\u00e7 sorma, te\u015fekk\u00fcr veya evet/hay\u0131r cevaplar\u0131 bu kapsamda DE\u011e\u0130LD\u0130R."
+     "description": "SADECE \u015fu durumda: m\u00fc\u015fteri kart ekstre borcu, son \u00f6deme tarihi, ekstrenin e-postayla g\u00f6nderimi, hesap kesim tarihi de\u011fi\u015fikli\u011fi, kart se\u00e7imi, \u00f6deme, itiraz veya temsilci d\u0131\u015f\u0131nda tamamen ba\u015fka bir konu soruyor (\u00f6r. kredi faizi, kart limiti, puanlar, taksit, \u015fube saatleri, kredi ba\u015fvurusu, kart bloke etme, adres de\u011fi\u015fikli\u011fi). Ba\u015fka bir ki\u015finin (e\u015finin, annesinin vb.) kart\u0131 hakk\u0131nda istek, hesap kesim tarihi/haftas\u0131 de\u011fi\u015ftirme, ekstre g\u00f6nderme, kart numaras\u0131/haneleri isteme, kart se\u00e7me, bor\u00e7 sorma, te\u015fekk\u00fcr veya evet/hay\u0131r cevaplar\u0131 bu kapsamda DE\u011e\u0130LD\u0130R."
     },
     "node_type": "conversation",
     "assertions": [],
