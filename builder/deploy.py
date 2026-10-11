@@ -9,10 +9,32 @@ Names: `dev-<person>` while developing, `submission-<brief>` for the final run (
 NOTE: the list route's result shape is not documented in the kit; it is read defensively below.
 Check it against the real API once we have a key.
 """
+import re
 import sys
+import time
 from pathlib import Path
 
 KIT = Path(__file__).resolve().parent.parent / "kit"
+RETRIES, WAIT_S = 3, 10
+
+
+def _retrying(api):
+    """Retry Freya 5xx answers (seen: 503 key validation, 504 timeouts) on requests that are safe to repeat.
+    Creating a workflow is not repeated here; deploy() checks by name instead."""
+    def call(method, path, body=None, **params):
+        for attempt in range(RETRIES + 1):
+            try:
+                return api(method, path, body, **params)
+            except RuntimeError as e:
+                code = re.search(r"-> (5\d\d):", str(e))
+                safe = method in ("GET", "PUT") or params.get("dryRun") or path.endswith("/publish") or path.startswith("/api/v2/chat/")
+                if not code or not safe or attempt == RETRIES:
+                    raise
+                from builder import trace
+                trace.step(f"Freya answered {code.group(1)} to {method} {path}; retry {attempt + 1}/{RETRIES} in {WAIT_S} s")
+                time.sleep(WAIT_S)
+    call.retrying = True
+    return call
 
 
 def _freya():
@@ -20,6 +42,8 @@ def _freya():
     if str(KIT) not in sys.path:
         sys.path.insert(0, str(KIT))
     import freya
+    if not getattr(freya.api, "retrying", False):
+        freya.api = _retrying(freya.api)     # freya.py's own functions look `api` up at call time
     return freya
 
 
@@ -47,7 +71,15 @@ def deploy(name: str, workflow: dict) -> dict:
     freya = _freya()
     existing = find(name)
     if existing is None:
-        return {**freya.create_workflow(name, workflow), "version": 1, "created": True}
+        try:
+            return {**freya.create_workflow(name, workflow), "version": 1, "created": True}
+        except RuntimeError as e:
+            if not re.search(r"-> 5\d\d:", str(e)):
+                raise
+            time.sleep(WAIT_S)               # the create may have gone through before the 5xx: look before retrying
+            existing = find(name)
+            if existing is None:
+                return {**freya.create_workflow(name, workflow), "version": 1, "created": True}
     workflow_id = existing["id"]
     version = freya.update_workflow(workflow_id, workflow)
     agent_id = existing.get("agentId") or freya.api("GET", f"/api/v2/workflow/{workflow_id}", workspaceId=freya.workspace_id())["workflow"]["agentId"]
