@@ -5,7 +5,8 @@
     uv run python -m builder.test_spec --cached     # re-check the last extraction without model calls
 
 The briefs in tests/briefs/ are written by us to differ from the kit's: raw-a is Brief A as raw material with
-a memo that changes three rules; rules-c has other bands, holidays, identity questions, outcomes and queues.
+a memo that changes three rules; rules-c has other bands, holidays, identity questions, outcomes and queues;
+rules-c-multi is rules-c plus a multi-product addendum mail (like Brief A + Brief B) that also moves a holiday.
 The EXPECTED values below are test fixtures only, never builder input.
 """
 import json
@@ -69,6 +70,16 @@ EXPECTED = {
     },
 }
 
+# Two files, like Brief A + Brief B: the addendum adds multi-product rules and moves one holiday.
+EXPECTED["rules-c-multi"] = {
+    **EXPECTED["rules-c"],
+    "files": ["rules-c.md", "rules-c-multi.md"],
+    "openapi": "rules-c.openapi.json",
+    "holidays": {"2026-10-19", "2026-11-03", "2026-12-24", "2026-12-31", "2027-01-06"},
+    "must_say": EXPECTED["rules-c"]["must_say"] + ["add_note", "system_error", "contested", "vulnerability"],
+    "must_not_appear": EXPECTED["rules-c"]["must_not_appear"] + ["2026-11-02"],
+}
+
 
 def _pair(o: dict) -> tuple:
     return (o.get("outcome", ""), o.get("reason", "") or "")
@@ -112,8 +123,10 @@ def check(name: str, spec: dict) -> list[str]:
 
 def extract(name: str) -> dict:
     from builder import spec  # imported here so --cached needs no Claude login
-    result = spec.extract([(BRIEFS / f"{name}.md").read_text(encoding="utf-8")],
-                          (BRIEFS / f"{name}.openapi.json").read_text(encoding="utf-8"))
+    exp = EXPECTED[name]
+    files = exp.get("files", [f"{name}.md"])
+    result = spec.extract([(BRIEFS / f).read_text(encoding="utf-8") for f in files],
+                          (BRIEFS / exp.get("openapi", f"{name}.openapi.json")).read_text(encoding="utf-8"))
     OUT.mkdir(parents=True, exist_ok=True)
     (OUT / f"{name}.spec.json").write_text(json.dumps(result, indent=1, ensure_ascii=False), encoding="utf-8")
     return result
