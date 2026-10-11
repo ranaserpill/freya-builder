@@ -105,9 +105,12 @@ Offline tests (no Freya, no credit; run all before every PR):
 Date comparisons: done (PR #17 lists each product's allowed dates; the agent checks membership). rules-c and
 rules-c-multi pass `test_spec` with the offers check.
 
-**Open (Şevval's files):** `add_note` for products without a promise can be forgotten (PUB-12 run above). Idea: a
-generic "before your goodbye, make every tool call your instructions require at the end of a product" line in the
-collection step, or a check in the `end_call` description. Measure with PUB-12 only (~0.3 credit).
+**add_note fix (PR #19, 11 Oct 09:40 UTC):** the failing PUB-12 run was the agent going silent after
+`create_promise` (customer hung up, notes never written). Now the promise hook's `what_to_do_next` says: record the
+next confirmed promise, then make the other required calls (e.g. notes), then tell the customer. PUB-12 **2/2 PASS**
+(promise + both notes, offer counts right); the 3rd run was lost to a Freya API outage (503/504).
+**Tried and reverted:** "write each product's note as soon as it is settled" made the agent note a refusal before
+making any offer and say "recorded" before recording (PUB-12 0/3). Do not reintroduce it.
 
 The agent model (`experimental-5`) is sometimes slow (median turn 10–26 s); `run_cases.py` warns when it is.
 Test A cases with an agent built from Brief A only: an A+B agent applies Brief B's add_note rule to A cases.
