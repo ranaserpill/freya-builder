@@ -88,7 +88,9 @@ def main(argv: list[str]) -> int:
         trace.step(f"generated workflow: {steps} steps, {n_tools} tool slots")
 
         freya = deploy._freya()
-        freya.validate_workflow(name, workflow)
+        # The dry run also rejects a name that already exists (409), which would break every rerun under the
+        # same --name. It saves nothing, so validate under a throwaway name.
+        freya.validate_workflow(f"{name}-dryrun-{int(time.time())}", workflow)
         trace.step("dry-run validation passed")
         made = deploy.deploy(name, workflow)
         trace.created(made["workflow_id"], made["agent_id"], steps, n_tools)
