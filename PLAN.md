@@ -96,7 +96,13 @@ Offline tests (no Freya, no credit; run all before every PR):
 | same, `--style in_words` PUB-01/06/07 | **3/3** | – |
 | same, `--style pieces` PUB-01/03/06 | 2/3 — PUB-03: the simulated customer mixed its pieces into the *correct* date of birth; the agent behaved right (transcript read, not rerun) | – |
 | 11 Oct, A+B agent from main (PRs #11–#14) | – | 2/3 (PUB-12: no persuasion on products refused up front) |
-| + spec: an attempt is an offer, count offers not refusals (PR this) | PUB-05/06/07 3/3 (agent from A) | **PUB-12 3/3**, PUB-11 ✓, PUB-13 ✓ |
+| + spec: an attempt is an offer, count offers not refusals (PR #15) | PUB-05/06/07 3/3 (agent from A) | **PUB-12 3/3**, PUB-11 ✓, PUB-13 ✓ |
+| 11 Oct 07:20, all 13 cases, agents from main after #15 | 9/10 (PUB-05: support team mentioned again in the goodbye) | 2/3 (**PUB-13: the agent said 30 Oct is after the 2 Nov deadline** — the model compares dates wrongly; code computed the deadline right) |
+| + spec: "offer once" = never brought up again (PR #16) | PUB-05 **3/3**, PUB-03 ✓, PUB-06 ✓ | – |
+
+**Open, highest value (Şevval's files): date comparisons must not be left to the agent model.** PUB-13 shows the model
+calling an allowed date "after the deadline". Options: phone_code lists each product's allowed promise dates
+explicitly (membership instead of comparison), and/or the `create_promise` pre-hook guard from the handoff (item 1).
 
 The agent model (`experimental-5`) is sometimes slow (median turn 10–26 s); `run_cases.py` warns when it is.
 Test A cases with an agent built from Brief A only: an A+B agent applies Brief B's add_note rule to A cases.
